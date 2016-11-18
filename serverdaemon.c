@@ -16,7 +16,15 @@ typedef int bool;
 #define true 1
 #define false 0
 
+typedef struct cCommand {
+   char  SOF;
+   char  Sensor;
+   char  Eje;
+   int   CS;
+} clientCommand;
+
 pthread_t threadId;
+pthread_mutex_t lock;
 
 static void  *vfClientThread(void* vpArgs);
 
@@ -29,6 +37,12 @@ int main(int argc, char *argv[])
     int listenFd;
     int client;
 	
+	if (pthread_mutex_init(&lock, NULL) != 0)
+	{
+		printf("\n Inicialización mutex fallida!\n");
+        exit(EXIT_FAILURE);
+	}
+
     struct sockaddr_in socketOptions;
     socklen_t addrlen;
 
@@ -71,7 +85,7 @@ int main(int argc, char *argv[])
 	
 	printf("Socket Listo para asignar clientes!...\n");
     addrlen = sizeof(struct sockaddr_in);
-
+	
     for(;;)
     {
 		/*En espera de un cliente*/
@@ -83,6 +97,7 @@ int main(int argc, char *argv[])
      	printf("socket numero: %i creado satisfactoriamente, ejecutando Hilo...\n",client);
     }  
    	
+	pthread_mutex_destroy(&lock);
 	close(client); 
 }
 
@@ -117,11 +132,32 @@ static void *vfClientThread(void* vpArgs)
 		}
 		else
 		{  
-			//write(socket, buffer,s_msg);
+			pthread_mutex_lock(&lock);
+			
+			int checksum;
+			clientCommand command;
+			/*Imprime comando recivido del cliente*/
 			printf("SOF:   \"%#2x\"\n",buffer[0]);
 			printf("Sensor:\"%#2x\"\n",buffer[1]);
 			printf("Eje:   \"%#2x\"\n",buffer[2]);
 			printf("CS:    \"%#2x\"\n\n",buffer[3]);
+			
+			/*Almacenando valores*/
+			command.SOF = atoi(buffer[0]);
+			command.Sensor = atoi(buffer[1]);
+			command.Eje = atoi(buffer[2]);
+			command.CS = atoi(buffer[3]);
+			
+			checksum = command.SOF + command.Sensor + command.Eje + command.CS;
+			printf("%i \n", checksum);
+			
+			/*lectura de acc*/
+			//FILE *pAcc;
+			//pp = popen("ls -al", "r");
+
+		    pthread_mutex_unlock(&lock);
+
+
 		}
 
 	}

@@ -47,7 +47,7 @@ int FXOS8700CQ_Init()
 	}
 	printf("hoa");
 	// open comunication to FXOS8700CQ
-	if (ioctl(accFd, I2C_SLAVE, FXOS8700CQ_SLAVE_ADDR) < 0)
+	if (ioctl(accFd, I2C_SLAVE_FORCE, FXOS8700CQ_SLAVE_ADDR) < 0)
 	{
 		buffer = strerror(errno);
         printf("%s\n\n", buffer);

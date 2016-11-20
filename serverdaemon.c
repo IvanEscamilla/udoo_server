@@ -8,6 +8,7 @@
 #include <netinet/ip.h>
 #include <pthread.h>
 #include <string.h>
+#include "accelerometer.h"
 
 #define LISTEN_BACKLOG 50 //limitando a 50 conexiones en background
 #define MAXLENGHT  100 //100 bytes Max por trama
@@ -17,10 +18,10 @@ typedef int bool;
 #define false 0
 
 typedef struct cCommand {
-   char  SOF;
-   char  Sensor;
-   char  Eje;
-   int   CS;
+   int  SOF;
+   int  Sensor;
+   int  Eje;
+   int  CS;
 } clientCommand;
 
 pthread_t threadId;
@@ -37,6 +38,13 @@ int main(int argc, char *argv[])
     int listenFd;
     int client;
 	
+	/*Configurando Magnetometro y acelerometro*/	
+	if(FXOS8700CQ_Init() < 0)
+	{
+		printf("\n Inicialización Acelerometro y magnetometro fallida!\n");
+        exit(EXIT_FAILURE);	
+	}
+
 	if (pthread_mutex_init(&lock, NULL) != 0)
 	{
 		printf("\n Inicialización mutex fallida!\n");
@@ -124,7 +132,8 @@ static void *vfClientThread(void* vpArgs)
 		/*Limpia Buffer*/
 		memset(buffer,'\0',MAXLENGHT);
 		/*Esperando algun mensaje*/
-		msgLenght = read(socket, buffer, MAXLENGHT);
+		printf("Esperando mensaje del cliente...\n");
+		msgLenght = recv(socket, buffer, MAXLENGHT,0);
 		/*nterrupted by a signal or error ocurred*/
 		if(msgLenght <= 0) 
 		{
@@ -143,18 +152,22 @@ static void *vfClientThread(void* vpArgs)
 			printf("CS:    \"%#2x\"\n\n",buffer[3]);
 			
 			/*Almacenando valores*/
-			command.SOF = atoi(buffer[0]);
-			command.Sensor = atoi(buffer[1]);
-			command.Eje = atoi(buffer[2]);
-			command.CS = atoi(buffer[3]);
+			command.SOF = (int)buffer[0];
+			command.Sensor = (int)buffer[1];
+			command.Eje = (int)buffer[2];
+			command.CS = (int)buffer[3];
 			
-			checksum = command.SOF + command.Sensor + command.Eje + command.CS;
-			printf("%i \n", checksum);
-			
-			/*lectura de acc*/
-			//FILE *pAcc;
-			//pp = popen("ls -al", "r");
-
+			checksum = command.SOF + command.Sensor + command.Eje;
+			/*Validando Checksum*/
+			if(checksum == command.CS)
+			{
+				printf("Interpretando mensaje recibido\n");
+				
+			}
+			else
+			{
+				printf("Error en el mensaje checksum fail...\n\n");
+			}
 		    pthread_mutex_unlock(&lock);
 
 

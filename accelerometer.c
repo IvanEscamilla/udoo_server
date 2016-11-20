@@ -163,11 +163,8 @@ int FXOS8700CQ_Init()
 int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 {
 	uint8_t Buffer[FXOS8700CQ_FULL_READ_LEN];
-	//uint8_t accBuffer[FXOS8700CQ_ACC_READ_LEN]; // read buffer
-	//uint8_t magBuffer[FXOS8700CQ_MAG_READ_LEN]; // read buffer
-	//uint8_t addrToRead;
 	
-	// read FXOS8700CQ_FULL_READ_LEN=56 bytes (status byte and the six channels of data)
+	// read FXOS8700CQ_FULL_READ_LEN = 13 bytes (status byte and the six channels of data)
 	if (read( accFd, Buffer, FXOS8700CQ_FULL_READ_LEN) != FXOS8700CQ_FULL_READ_LEN) 
 	{
         buffer =  strerror(errno);
@@ -178,9 +175,9 @@ int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 	{
 
 		// copy the 14 bit accelerometer byte data into 16 bit words
-		pAccelData->x = (int16_t)(((Buffer[FXOS8700CQ_X_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_X_LSB_ACC_REGISTER]) >> 2);
-		pAccelData->y = (int16_t)(((Buffer[FXOS8700CQ_Y_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Y_LSB_ACC_REGISTER]) >> 2);
-		pAccelData->z = (int16_t)(((Buffer[FXOS8700CQ_Z_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Z_LSB_ACC_REGISTER]) >> 2);
+		pAccelData->x = (int16_t)(((Buffer[FXOS8700CQ_X_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_X_LSB_ACC_REGISTER]));
+		pAccelData->y = (int16_t)(((Buffer[FXOS8700CQ_Y_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Y_LSB_ACC_REGISTER]));
+		pAccelData->z = (int16_t)(((Buffer[FXOS8700CQ_Z_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Z_LSB_ACC_REGISTER]));
 
 		// copy the magnetometer byte data into 16 bit words
 		pMagnData->x = (Buffer[FXOS8700CQ_X_MSB_MAG_REGISTER] << 8) | Buffer[FXOS8700CQ_X_LSB_MAG_REGISTER];
@@ -188,66 +185,6 @@ int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 		pMagnData->z = (Buffer[FXOS8700CQ_Z_MSB_MAG_REGISTER] << 8) | Buffer[FXOS8700CQ_Z_LSB_MAG_REGISTER];
 
 	}
-	
-	/*
-	//Read acc data from 0x01 addr to 0x06
-	addrToRead = FXOS8700CQ_XYZ_ACC_START_REGISTER;
-
-	if(write( accFd, &addrToRead, 1) <= 0)
-	{
-		buffer =  strerror(errno);
-        printf("%s\n\n", buffer);
-		perror("Failed to write the start addres to read");
-		return (I2C_ERROR);
-	}
-
-	// read FXOS8700CQ_READ_LEN=6 bytes (status byte and the six channels of data)
-	if (read( accFd, accBuffer, FXOS8700CQ_ACC_READ_LEN) != FXOS8700CQ_ACC_READ_LEN) 
-	{
-
-        buffer =  strerror(errno);
-        printf("%s\n\n", buffer);
-		return I2C_ERROR;
-
-    } 
-	else
-	{
-
-		// copy the 14 bit accelerometer byte data into 16 bit words
-		pAccelData->x = (int16_t)(((accBuffer[0] << 8) | accBuffer[1]));
-		pAccelData->y = (int16_t)(((accBuffer[2] << 8) | accBuffer[3]));
-		pAccelData->z = (int16_t)(((accBuffer[4] << 8) | accBuffer[5]));
-
-	}
-
-	//Read mag data from 0x33 addr to 0x38
-	addrToRead = FXOS8700CQ_XYZ_MAG_START_REGISTER;
-
-	if(write( accFd, &addrToRead, 1) <= 0)
-	{
-		buffer =  strerror(errno);
-        printf("%s\n\n", buffer);
-		perror("Failed to write the start addres to read");
-		return (I2C_ERROR);
-	}
-
-	// read FXOS8700CQ_MAG_READ_LEN=6 bytes (status byte and the six channels of data)
-	if (read( accFd, magBuffer, FXOS8700CQ_MAG_READ_LEN) != FXOS8700CQ_MAG_READ_LEN) 
-	{
-
-        buffer =  strerror(errno);
-        printf("%s\n\n", buffer);
-		return I2C_ERROR;
-
-    } 
-	else
-	{
-		// copy the magnetometer byte data into 16 bit words
-		pMagnData->x = (magBuffer[0] << 8) | magBuffer[1];
-		pMagnData->y = (magBuffer[2] << 8) | magBuffer[3];
-		pMagnData->z = (magBuffer[4] << 8) | magBuffer[5];
-
-	}*/
 
 	// normal return
 	return I2C_OK;

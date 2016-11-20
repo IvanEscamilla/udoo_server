@@ -146,7 +146,7 @@ static void *vfClientThread(void* vpArgs)
 			
 			SRAWDATA sAccRawData;
 			SRAWDATA sMagRawData;
-			SRAWDATA sGyroRawData;
+			SGYRORAWDATA sGyroRawData;
 
 			
 			ReadAccelMagnData(&sAccRawData, &sMagRawData);

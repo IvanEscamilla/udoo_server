@@ -88,7 +88,7 @@ int FXAS21002_Init()
 
 // read status and the three channels of accelerometer and magnetometer data from
 // FXAS21002 (6 bytes)
-int ReadGyroData(SRAWDATA *pGyroData)
+int ReadGyroData(SGYRORAWDATA *pGyroData)
 {
 	uint8_t Buffer[FXAS21002_FULL_READ_LEN];
 	

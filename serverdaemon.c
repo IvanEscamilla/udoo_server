@@ -13,6 +13,19 @@
 
 #define LISTEN_BACKLOG 50 //limitando a 50 conexiones en background
 #define MAXLENGHT  100 //100 bytes Max por trama
+//Sensor a leer
+#define acelerometro  0x01
+#define magnetometro  0x02
+#define giroscopio 	  0x03
+#define todos 		  0xFF
+#define error 		  0xFE
+
+//Eje a leer
+#define eje_x  		  0x01
+#define eje_y  		  0x02
+#define eje_z 	  	  0x03
+#define eje_xyz 	  0x04
+
 
 typedef int bool;
 #define true 1
@@ -24,6 +37,14 @@ typedef struct cCommand {
    int  Eje;
    int  CS;
 } clientCommand;
+
+typedef struct rCommand {
+   unsigned char  SOF;
+   unsigned char  Sensor;
+   unsigned char  dataLength;
+   uint16_t 	  data[9];
+   unsigned char  CS;
+} responseCommand;
 
 pthread_t threadId;
 pthread_mutex_t lock;
@@ -152,34 +173,16 @@ static void *vfClientThread(void* vpArgs)
 		{  
 			pthread_mutex_lock(&lock);
 			
+			int checksum;
+			clientCommand command;
+			responseCommand response;
 			SRAWDATA sAccRawData;
 			SRAWDATA sMagRawData;
 			SGYRORAWDATA sGyroRawData;
 
+			/*Response SOF*/
+			response.SOF = 0xaa;
 			
-			ReadAccelMagnData(&sAccRawData, &sMagRawData);
-			ReadGyroData(&sGyroRawData);
-
-			/*Print Acc Data Raw*/
-			printf("Acc Raw Data\n");
-			printf("X: %i\n",sAccRawData.x);
-			printf("Y: %i\n",sAccRawData.y);
-			printf("Z: %i\n\n",sAccRawData.z);
-
-			/*Print Mag Data Raw*/
-			printf("Mag Raw Data\n");
-			printf("X: %i\n",sMagRawData.x);
-			printf("Y: %i\n",sMagRawData.y);
-			printf("Z: %i\n\n",sMagRawData.z);
-
-			/*Print Gyro Data Raw*/
-			printf("Gyro Raw Data\n");
-			printf("X: %i\n",sGyroRawData.x);
-			printf("Y: %i\n",sGyroRawData.y);
-			printf("Z: %i\n\n",sGyroRawData.z);
-
-			int checksum;
-			clientCommand command;
 			/*Imprime comando recivido del cliente*/
 			printf("SOF:   \"%#2x\"\n",buffer[0]);
 			printf("Sensor:\"%#2x\"\n",buffer[1]);
@@ -197,12 +200,245 @@ static void *vfClientThread(void* vpArgs)
 			if(checksum == command.CS)
 			{
 				printf("Interpretando mensaje recibido\n");
+				switch(command.Sensor)
+				{
+					case acelerometro:
+					{
+						response.Sensor = acelerometro;
+						printf("Leyendo datos del acelerometro...\n");
+						ReadAccelMagnData(&sAccRawData, &sMagRawData);
+						switch(command.Eje)
+						{
+							case eje_x:
+							{
+								printf("Leyendo Eje x del acelerometro...\n");
+								printf("X: %i\n",sAccRawData.x);
+								response.dataLength = 1;
+								response.datos[0] = sAccRawData.x;
+
+							}break;
+							case eje_y:
+							{
+								printf("Leyendo Eje y del acelerometro...\n");
+								printf("Y: %i\n",sAccRawData.y);
+								response.dataLength = 1;
+								response.datos[0] = sAccRawData.y;
+
+							}break;
+							case eje_z:
+							{
+								printf("Leyendo Eje z del acelerometro...\n");
+								printf("Z: %i\n",sAccRawData.z);
+								response.dataLength = 1;
+								response.datos[0] = sAccRawData.z;
+
+							}break;
+							case eje_xyz:
+							{
+								printf("Leyendo Eje x, y, z del acelerometro...\n");
+								printf("X: %i\n",sAccRawData.x);
+								printf("Y: %i\n",sAccRawData.y);
+								printf("Z: %i\n\n",sAccRawData.z);
+								response.dataLength = 3;
+								response.datos[0] = sAccRawData.x;
+								response.datos[1] = sAccRawData.y;
+								response.datos[2] = sAccRawData.z;
+
+							}break;
+						}
+
+					}break;
+					case magnetometro:
+					{
+						response.Sensor = magnetometro;
+						printf("Leyendo datos del magnetometro...\n");
+						ReadAccelMagnData(&sAccRawData, &sMagRawData);
+						switch(command.Eje)
+						{
+							case eje_x:
+							{
+								printf("Leyendo Eje x del magnetometro...\n");
+								printf("X: %i\n",sMagRawData.x);
+								response.dataLength = 1;
+								response.datos[0] = sMagRawData.x;
+
+							}break;
+							case eje_y:
+							{
+								printf("Leyendo Eje y del magnetometro...\n");
+								printf("Y: %i\n",sMagRawData.y);
+								response.dataLength = 1;
+								response.datos[0] = sMagRawData.y;
+
+
+							}break;
+							case eje_z:
+							{
+								printf("Leyendo Eje z del magnetometro...\n");
+								printf("Z: %i\n",sMagRawData.z);
+								response.dataLength = 1;
+								response.datos[0] = sMagRawData.z;
+
+
+							}break;
+							case eje_xyz:
+							{
+								printf("Leyendo Eje x, y, z del magnetometro...\n");
+								printf("X: %i\n",sMagRawData.x);
+								printf("Y: %i\n",sMagRawData.y);
+								printf("Z: %i\n\n",sMagRawData.z);
+								response.dataLength = 3;
+								response.datos[0] = sMagRawData.x;
+								response.datos[1] = sMagRawData.y;
+								response.datos[2] = sMagRawData.z;
+
+							}break;
+						}
+
+					}break;
+					case giroscopio:
+					{
+						response.Sensor = giroscopio;
+						printf("Leyendo datos del giroscopio...\n");
+						ReadGyroData(&sGyroRawData);
+						switch(command.Eje)
+						{
+							case eje_x:
+							{
+								printf("Leyendo Eje x del giroscopio...\n");
+								printf("X: %i\n",sGyroRawData.x);
+								response.dataLength = 1;
+								response.datos[0] = sGyroRawData.x;
+
+							}break;
+							case eje_y:
+							{
+								printf("Leyendo Eje y del giroscopio...\n");
+								printf("Y: %i\n",sGyroRawData.y);
+								response.dataLength = 1;
+								response.datos[0] = sGyroRawData.y;
+
+
+							}break;
+							case eje_z:
+							{
+								printf("Leyendo Eje z del giroscopio...\n");
+								printf("Z: %i\n",sGyroRawData.z);
+								response.dataLength = 1;
+								response.datos[0] = sGyroRawData.z;
+
+
+							}break;
+							case eje_xyz:
+							{
+								printf("Leyendo Eje x, y, z del giroscopio...\n");
+								printf("X: %i\n",sGyroRawData.x);
+								printf("Y: %i\n",sGyroRawData.y);
+								printf("Z: %i\n\n",sGyroRawData.z);
+								response.dataLength = 3;
+								response.datos[0] = sGyroRawData.x;
+								response.datos[1] = sGyroRawData.y;
+								response.datos[2] = sGyroRawData.z;
+
+							}break;
+						}
+
+					}break;
+					case todos:
+					{
+						response.Sensor = todos;
+						printf("Leyendo datos de todos los sensores...\n");
+						ReadAccelMagnData(&sAccRawData, &sMagRawData);
+						ReadGyroData(&sGyroRawData);
+						switch(command.Eje)
+						{
+							case eje_x:
+							{
+								printf("Leyendo Eje x de todos los sensores...\n");
+								printf("Acc X: %i\n",sAccRawData.x);
+								printf("Mag X: %i\n",sMagRawData.x);
+								printf("Gyr X: %i\n",sGyroRawData.x);
+								response.dataLength = 3;
+								response.datos[0] = sAccRawData.x;
+								response.datos[1] = sMagRawData.x;
+								response.datos[2] = sGyroRawData.x;
+
+
+							}break;
+							case eje_y:
+							{
+								printf("Leyendo Eje y de todos los sensores...\n");
+								printf("Acc Y: %i\n",sAccRawData.y);
+								printf("Mag Y: %i\n",sMagRawData.y);
+								printf("Gyr Y: %i\n",sGyroRawData.y);
+								response.dataLength = 3;
+								response.datos[0] = sAccRawData.y;
+								response.datos[1] = sMagRawData.y;
+								response.datos[2] = sGyroRawData.y;
+
+
+							}break;
+							case eje_z:
+							{
+								printf("Leyendo Eje z de todos los sensores...\n");
+								printf("Acc Z: %i\n",sAccRawData.z);
+								printf("Mag Z: %i\n",sMagRawData.z);
+								printf("Gyr Z: %i\n",sGyroRawData.z);
+								response.dataLength = 3;
+								response.datos[0] = sAccRawData.z;
+								response.datos[1] = sMagRawData.z;
+								response.datos[2] = sGyroRawData.z;
+
+
+							}break;
+							case eje_xyz:
+							{
+								printf("Leyendo Eje x, y, z de todos los sensores...\n");
+								printf("Acc X: %i\n",sAccRawData.x);
+								printf("Acc Y: %i\n",sAccRawData.y);
+								printf("Acc Z: %i\n\n",sAccRawData.z);
+								response.dataLength = 9;
+								response.datos[0] = sAccRawData.x;
+								response.datos[1] = sAccRawData.y;
+								response.datos[2] = sAccRawData.z;
+
+								printf("Mag X: %i\n",sMagRawData.x);
+								printf("Mag Y: %i\n",sMagRawData.y);
+								printf("Mag Z: %i\n\n",sMagRawData.z);
+								response.datos[3] = sMagRawData.x;
+								response.datos[4] = sMagRawData.y;
+								response.datos[5] = sMagRawData.z;
+
+								printf("Gyr X: %i\n",sGyroRawData.x);
+								printf("Gyr Y: %i\n",sGyroRawData.y);
+								printf("Gyr Z: %i\n\n",sGyroRawData.z);
+								response.datos[6] = sGyroRawData.x;
+								response.datos[7] = sGyroRawData.y;
+								response.datos[8] = sGyroRawData.z;
+
+							}break;
+						}
+
+					}break;
+				}
 				
 			}
 			else
 			{
+
+				response.Sensor = error;
+				response.dataLength = 0;
+				response.data 		= 0;
+				response.CS 		= 0xFF;
 				printf("Error en el mensaje checksum fail...\n\n");
 			}
+
+			/*Response to client*/
+			if(write(socket, &response, sizeof(response)) <= 0)
+			{
+				printf("Error al enviar mensaje\n");
+			}
+
 		    pthread_mutex_unlock(&lock);
 
 

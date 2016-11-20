@@ -143,6 +143,22 @@ static void *vfClientThread(void* vpArgs)
 		{  
 			pthread_mutex_lock(&lock);
 			
+			SRAWDATA sAccRawData;
+			SRAWDATA sMagRawData;
+			
+			ReadAccelMagnData(&sAccRawData, &sMagRawData);
+			/*Print Acc Data Raw*/
+			printf("Acc Raw Data\n");
+			printf("X: %i\n",sAccRawData.x);
+			printf("Y: %i\n",sAccRawData.y);
+			printf("Z: %i\n\n",sAccRawData.z);
+
+			/*Print Mag Data Raw*/
+			printf("Mag Raw Data\n");
+			printf("X: %i\n",sMagRawData.x);
+			printf("Y: %i\n",sMagRawData.y);
+			printf("Z: %i\n\n",sMagRawData.z);
+
 			int checksum;
 			clientCommand command;
 			/*Imprime comando recivido del cliente*/

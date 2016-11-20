@@ -137,7 +137,7 @@ int FXOS8700CQ_Init()
 
 // read status and the three channels of accelerometer and magnetometer data from
 // FXOS8700CQ (13 bytes)
-int16_t ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
+int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 {
 	uint8_t Buffer[FXOS8700CQ_READ_LEN]; // read buffer
 	

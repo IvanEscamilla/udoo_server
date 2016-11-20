@@ -21,4 +21,4 @@ typedef struct
 } SRAWDATA;
 
 int FXOS8700CQ_Init();
-int16_t ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData);
+int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData);

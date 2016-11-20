@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <string.h>
 #include "accelerometer.h"
+#include "gyroscope.h"
 
 #define LISTEN_BACKLOG 50 //limitando a 50 conexiones en background
 #define MAXLENGHT  100 //100 bytes Max por trama

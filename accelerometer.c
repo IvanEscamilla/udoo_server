@@ -194,7 +194,7 @@ int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 	}
 
 	// read FXOS8700CQ_MAG_READ_LEN=6 bytes (status byte and the six channels of data)
-	if (read( accFd, accBuffer, FXOS8700CQ_MAG_READ_LEN) != FXOS8700CQ_MAG_READ_LEN) 
+	if (read( accFd, magBuffer, FXOS8700CQ_MAG_READ_LEN) != FXOS8700CQ_MAG_READ_LEN) 
 	{
 
         buffer =  strerror(errno);

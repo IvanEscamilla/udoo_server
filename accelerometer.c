@@ -15,8 +15,22 @@
 #define FXOS8700CQ_M_CTRL_REG1 				0x5B
 #define FXOS8700CQ_M_CTRL_REG2 				0x5C
 #define FXOS8700CQ_WHOAMI_VAL 				0xC7
+/*XYZ REGISTERS OF ACC*/
 #define FXOS8700CQ_XYZ_ACC_START_REGISTER 	0x01
+#define FXOS8700CQ_X_MSB_ACC_REGISTER 		0x01
+#define FXOS8700CQ_X_LSB_ACC_REGISTER 		0x02
+#define FXOS8700CQ_Y_MSB_ACC_REGISTER 		0x03
+#define FXOS8700CQ_Y_LSB_ACC_REGISTER 		0x04
+#define FXOS8700CQ_Z_MSB_ACC_REGISTER 		0x05
+#define FXOS8700CQ_Z_LSB_ACC_REGISTER 		0x06
+/*XYZ REGISTERS OF MAG*/
 #define FXOS8700CQ_XYZ_MAG_START_REGISTER 	0x33
+#define FXOS8700CQ_X_MSB_MAG_REGISTER 		0x33
+#define FXOS8700CQ_X_LSB_MAG_REGISTER 		0x34
+#define FXOS8700CQ_Y_MSB_MAG_REGISTER 		0x35
+#define FXOS8700CQ_Y_LSB_MAG_REGISTER 		0x36
+#define FXOS8700CQ_Z_MSB_MAG_REGISTER 		0x37
+#define FXOS8700CQ_Z_LSB_MAG_REGISTER 		0x38
 
 /*
 	The reference driver code shown in block read of the FXOS8700CQ
@@ -26,7 +40,7 @@
 */
 
 // number of bytes to be read from the FXOS8700CQ
-#define FXOS8700CQ_READ_LEN 			12 // 6 acc channels + 6 mag channels = 12 bytes
+#define FXOS8700CQ_FULL_READ_LEN 		56 // 0x00 to 0x38 = 56 bytes
 #define FXOS8700CQ_ACC_READ_LEN 		6 // plus 6 channels = 6 bytes
 #define FXOS8700CQ_MAG_READ_LEN 		6 // plus 6 channels = 6 bytes
 
@@ -148,11 +162,35 @@ int FXOS8700CQ_Init()
 // FXOS8700CQ (13 bytes)
 int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 {
-	uint8_t accBuffer[FXOS8700CQ_ACC_READ_LEN]; // read buffer
-	uint8_t magBuffer[FXOS8700CQ_MAG_READ_LEN]; // read buffer
-	uint8_t addrToRead;
+	uint8_t Buffer[FXOS8700CQ_FULL_READ_LEN];
+	//uint8_t accBuffer[FXOS8700CQ_ACC_READ_LEN]; // read buffer
+	//uint8_t magBuffer[FXOS8700CQ_MAG_READ_LEN]; // read buffer
+	//uint8_t addrToRead;
 	
-	/*Read acc data from 0x01 addr to 0x06*/
+	// read FXOS8700CQ_FULL_READ_LEN=56 bytes (status byte and the six channels of data)
+	if (read( accFd, Buffer, FXOS8700CQ_FULL_READ_LEN) != FXOS8700CQ_FULL_READ_LEN) 
+	{
+        buffer =  strerror(errno);
+        printf("%s\n\n", buffer);
+		return I2C_ERROR;
+    } 
+	else
+	{
+
+		// copy the 14 bit accelerometer byte data into 16 bit words
+		pAccelData->x = (int16_t)(((Buffer[FXOS8700CQ_X_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_X_LSB_ACC_REGISTER]));
+		pAccelData->y = (int16_t)(((Buffer[FXOS8700CQ_Y_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Y_LSB_ACC_REGISTER]));
+		pAccelData->z = (int16_t)(((Buffer[FXOS8700CQ_Z_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Z_LSB_ACC_REGISTER]));
+
+		// copy the magnetometer byte data into 16 bit words
+		pMagnData->x = (Buffer[FXOS8700CQ_X_MSB_MAG_REGISTER] << 8) | Buffer[FXOS8700CQ_X_LSB_MAG_REGISTER];
+		pMagnData->y = (Buffer[FXOS8700CQ_Y_MSB_MAG_REGISTER] << 8) | Buffer[FXOS8700CQ_Y_LSB_MAG_REGISTER];
+		pMagnData->z = (Buffer[FXOS8700CQ_Z_MSB_MAG_REGISTER] << 8) | Buffer[FXOS8700CQ_Z_LSB_MAG_REGISTER];
+
+	}
+	
+	/*
+	//Read acc data from 0x01 addr to 0x06
 	addrToRead = FXOS8700CQ_XYZ_ACC_START_REGISTER;
 
 	if(write( accFd, &addrToRead, 1) <= 0)
@@ -176,13 +214,13 @@ int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 	{
 
 		// copy the 14 bit accelerometer byte data into 16 bit words
-		pAccelData->x = (int16_t)(((accBuffer[0] << 8) | accBuffer[1]))>> 2;
-		pAccelData->y = (int16_t)(((accBuffer[2] << 8) | accBuffer[3]))>> 2;
-		pAccelData->z = (int16_t)(((accBuffer[4] << 8) | accBuffer[5]))>> 2;
+		pAccelData->x = (int16_t)(((accBuffer[0] << 8) | accBuffer[1]));
+		pAccelData->y = (int16_t)(((accBuffer[2] << 8) | accBuffer[3]));
+		pAccelData->z = (int16_t)(((accBuffer[4] << 8) | accBuffer[5]));
 
 	}
 
-	/*Read mag data from 0x33 addr to 0x38*/
+	//Read mag data from 0x33 addr to 0x38
 	addrToRead = FXOS8700CQ_XYZ_MAG_START_REGISTER;
 
 	if(write( accFd, &addrToRead, 1) <= 0)
@@ -209,7 +247,7 @@ int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 		pMagnData->y = (magBuffer[2] << 8) | magBuffer[3];
 		pMagnData->z = (magBuffer[4] << 8) | magBuffer[5];
 
-	}
+	}*/
 
 	// normal return
 	return I2C_OK;

@@ -145,8 +145,12 @@ static void *vfClientThread(void* vpArgs)
 			
 			SRAWDATA sAccRawData;
 			SRAWDATA sMagRawData;
+			SRAWDATA sGyroRawData;
+
 			
 			ReadAccelMagnData(&sAccRawData, &sMagRawData);
+			ReadGyroData(&sGyroRawData);
+
 			/*Print Acc Data Raw*/
 			printf("Acc Raw Data\n");
 			printf("X: %i\n",sAccRawData.x);
@@ -158,6 +162,12 @@ static void *vfClientThread(void* vpArgs)
 			printf("X: %i\n",sMagRawData.x);
 			printf("Y: %i\n",sMagRawData.y);
 			printf("Z: %i\n\n",sMagRawData.z);
+
+			/*Print Gyro Data Raw*/
+			printf("Gyro Raw Data\n");
+			printf("X: %i\n",sGyroRawData.x);
+			printf("Y: %i\n",sGyroRawData.y);
+			printf("Z: %i\n\n",sGyroRawData.z);
 
 			int checksum;
 			clientCommand command;

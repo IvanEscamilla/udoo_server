@@ -61,7 +61,7 @@ int FXOS8700CQ_Init()
 	// [0]: active=0
 	databyte = 0x00;
 
-	if(write( accFd, &databyte, 1) != 0)
+	if(write( accFd, &databyte, 1) <= 0)
 	{
 		buffer = strerror(errno);
         printf("%s\n\n", buffer);
@@ -76,7 +76,7 @@ int FXOS8700CQ_Init()
 	// [4-2]: m_os=111=7: 8x oversampling (for 200Hz) to reduce magnetometer noise
 	// [1-0]: m_hms=11=3: select hybrid mode with accel and magnetometer active
 	databyte = 0x1F;
-	if(write( accFd, &databyte, 1) != 0)
+	if(write( accFd, &databyte, 1) <= 0)
 	{
 		buffer =  strerror(errno);
         printf("%s\n\n", buffer);
@@ -92,7 +92,7 @@ int FXOS8700CQ_Init()
 	// [2]: m_maxmin_rst=0
 	// [1-0]: m_rst_cnt=00 to enable magnetic reset each cycle
 	databyte = 0x20;
-	if(write( accFd, &databyte, 1) != 0)
+	if(write( accFd, &databyte, 1) <= 0)
 	{
 		buffer =  strerror(errno);
         printf("%s\n\n", buffer);
@@ -109,7 +109,7 @@ int FXOS8700CQ_Init()
 	// [2]: reserved
 	// [1-0]: fs=01 for accelerometer range of +/-4g range with 0.488mg/LSB
 	databyte = 0x01;
-	if(write( accFd, &databyte, 1) != 0)
+	if(write( accFd, &databyte, 1) <= 0)
 	{
 		buffer =  strerror(errno);
         printf("%s\n\n", buffer);
@@ -124,7 +124,7 @@ int FXOS8700CQ_Init()
 	// [1]: f_read=0 for normal 16 bit reads
 	// [0]: active=1 to take the part out of standby and enable sampling
 	databyte = 0x0D;
-	if(write( accFd, &databyte, 1) != 0)
+	if(write( accFd, &databyte, 1) <= 0)
 	{
 		buffer =  strerror(errno);
         printf("%s\n\n", buffer);

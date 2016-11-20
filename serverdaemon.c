@@ -214,7 +214,7 @@ static void *vfClientThread(void* vpArgs)
 								printf("Leyendo Eje x del acelerometro...\n");
 								printf("X: %i\n",sAccRawData.x);
 								response.dataLength = 1;
-								response.datos[0] = sAccRawData.x;
+								response.data[0] = sAccRawData.x;
 
 							}break;
 							case eje_y:
@@ -222,7 +222,7 @@ static void *vfClientThread(void* vpArgs)
 								printf("Leyendo Eje y del acelerometro...\n");
 								printf("Y: %i\n",sAccRawData.y);
 								response.dataLength = 1;
-								response.datos[0] = sAccRawData.y;
+								response.data[0] = sAccRawData.y;
 
 							}break;
 							case eje_z:
@@ -230,7 +230,7 @@ static void *vfClientThread(void* vpArgs)
 								printf("Leyendo Eje z del acelerometro...\n");
 								printf("Z: %i\n",sAccRawData.z);
 								response.dataLength = 1;
-								response.datos[0] = sAccRawData.z;
+								response.data[0] = sAccRawData.z;
 
 							}break;
 							case eje_xyz:
@@ -240,9 +240,9 @@ static void *vfClientThread(void* vpArgs)
 								printf("Y: %i\n",sAccRawData.y);
 								printf("Z: %i\n\n",sAccRawData.z);
 								response.dataLength = 3;
-								response.datos[0] = sAccRawData.x;
-								response.datos[1] = sAccRawData.y;
-								response.datos[2] = sAccRawData.z;
+								response.data[0] = sAccRawData.x;
+								response.data[1] = sAccRawData.y;
+								response.data[2] = sAccRawData.z;
 
 							}break;
 						}
@@ -260,7 +260,7 @@ static void *vfClientThread(void* vpArgs)
 								printf("Leyendo Eje x del magnetometro...\n");
 								printf("X: %i\n",sMagRawData.x);
 								response.dataLength = 1;
-								response.datos[0] = sMagRawData.x;
+								response.data[0] = sMagRawData.x;
 
 							}break;
 							case eje_y:
@@ -268,7 +268,7 @@ static void *vfClientThread(void* vpArgs)
 								printf("Leyendo Eje y del magnetometro...\n");
 								printf("Y: %i\n",sMagRawData.y);
 								response.dataLength = 1;
-								response.datos[0] = sMagRawData.y;
+								response.data[0] = sMagRawData.y;
 
 
 							}break;
@@ -277,7 +277,7 @@ static void *vfClientThread(void* vpArgs)
 								printf("Leyendo Eje z del magnetometro...\n");
 								printf("Z: %i\n",sMagRawData.z);
 								response.dataLength = 1;
-								response.datos[0] = sMagRawData.z;
+								response.data[0] = sMagRawData.z;
 
 
 							}break;
@@ -288,9 +288,9 @@ static void *vfClientThread(void* vpArgs)
 								printf("Y: %i\n",sMagRawData.y);
 								printf("Z: %i\n\n",sMagRawData.z);
 								response.dataLength = 3;
-								response.datos[0] = sMagRawData.x;
-								response.datos[1] = sMagRawData.y;
-								response.datos[2] = sMagRawData.z;
+								response.data[0] = sMagRawData.x;
+								response.data[1] = sMagRawData.y;
+								response.data[2] = sMagRawData.z;
 
 							}break;
 						}
@@ -308,7 +308,7 @@ static void *vfClientThread(void* vpArgs)
 								printf("Leyendo Eje x del giroscopio...\n");
 								printf("X: %i\n",sGyroRawData.x);
 								response.dataLength = 1;
-								response.datos[0] = sGyroRawData.x;
+								response.data[0] = sGyroRawData.x;
 
 							}break;
 							case eje_y:
@@ -316,7 +316,7 @@ static void *vfClientThread(void* vpArgs)
 								printf("Leyendo Eje y del giroscopio...\n");
 								printf("Y: %i\n",sGyroRawData.y);
 								response.dataLength = 1;
-								response.datos[0] = sGyroRawData.y;
+								response.data[0] = sGyroRawData.y;
 
 
 							}break;
@@ -325,7 +325,7 @@ static void *vfClientThread(void* vpArgs)
 								printf("Leyendo Eje z del giroscopio...\n");
 								printf("Z: %i\n",sGyroRawData.z);
 								response.dataLength = 1;
-								response.datos[0] = sGyroRawData.z;
+								response.data[0] = sGyroRawData.z;
 
 
 							}break;
@@ -336,9 +336,9 @@ static void *vfClientThread(void* vpArgs)
 								printf("Y: %i\n",sGyroRawData.y);
 								printf("Z: %i\n\n",sGyroRawData.z);
 								response.dataLength = 3;
-								response.datos[0] = sGyroRawData.x;
-								response.datos[1] = sGyroRawData.y;
-								response.datos[2] = sGyroRawData.z;
+								response.data[0] = sGyroRawData.x;
+								response.data[1] = sGyroRawData.y;
+								response.data[2] = sGyroRawData.z;
 
 							}break;
 						}
@@ -359,9 +359,9 @@ static void *vfClientThread(void* vpArgs)
 								printf("Mag X: %i\n",sMagRawData.x);
 								printf("Gyr X: %i\n",sGyroRawData.x);
 								response.dataLength = 3;
-								response.datos[0] = sAccRawData.x;
-								response.datos[1] = sMagRawData.x;
-								response.datos[2] = sGyroRawData.x;
+								response.data[0] = sAccRawData.x;
+								response.data[1] = sMagRawData.x;
+								response.data[2] = sGyroRawData.x;
 
 
 							}break;
@@ -372,9 +372,9 @@ static void *vfClientThread(void* vpArgs)
 								printf("Mag Y: %i\n",sMagRawData.y);
 								printf("Gyr Y: %i\n",sGyroRawData.y);
 								response.dataLength = 3;
-								response.datos[0] = sAccRawData.y;
-								response.datos[1] = sMagRawData.y;
-								response.datos[2] = sGyroRawData.y;
+								response.data[0] = sAccRawData.y;
+								response.data[1] = sMagRawData.y;
+								response.data[2] = sGyroRawData.y;
 
 
 							}break;
@@ -385,9 +385,9 @@ static void *vfClientThread(void* vpArgs)
 								printf("Mag Z: %i\n",sMagRawData.z);
 								printf("Gyr Z: %i\n",sGyroRawData.z);
 								response.dataLength = 3;
-								response.datos[0] = sAccRawData.z;
-								response.datos[1] = sMagRawData.z;
-								response.datos[2] = sGyroRawData.z;
+								response.data[0] = sAccRawData.z;
+								response.data[1] = sMagRawData.z;
+								response.data[2] = sGyroRawData.z;
 
 
 							}break;
@@ -398,23 +398,23 @@ static void *vfClientThread(void* vpArgs)
 								printf("Acc Y: %i\n",sAccRawData.y);
 								printf("Acc Z: %i\n\n",sAccRawData.z);
 								response.dataLength = 9;
-								response.datos[0] = sAccRawData.x;
-								response.datos[1] = sAccRawData.y;
-								response.datos[2] = sAccRawData.z;
+								response.data[0] = sAccRawData.x;
+								response.data[1] = sAccRawData.y;
+								response.data[2] = sAccRawData.z;
 
 								printf("Mag X: %i\n",sMagRawData.x);
 								printf("Mag Y: %i\n",sMagRawData.y);
 								printf("Mag Z: %i\n\n",sMagRawData.z);
-								response.datos[3] = sMagRawData.x;
-								response.datos[4] = sMagRawData.y;
-								response.datos[5] = sMagRawData.z;
+								response.data[3] = sMagRawData.x;
+								response.data[4] = sMagRawData.y;
+								response.data[5] = sMagRawData.z;
 
 								printf("Gyr X: %i\n",sGyroRawData.x);
 								printf("Gyr Y: %i\n",sGyroRawData.y);
 								printf("Gyr Z: %i\n\n",sGyroRawData.z);
-								response.datos[6] = sGyroRawData.x;
-								response.datos[7] = sGyroRawData.y;
-								response.datos[8] = sGyroRawData.z;
+								response.data[6] = sGyroRawData.x;
+								response.data[7] = sGyroRawData.y;
+								response.data[8] = sGyroRawData.z;
 
 							}break;
 						}

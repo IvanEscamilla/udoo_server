@@ -8,13 +8,15 @@
 #define FXOS8700CQ_SLAVE_ADDR 		0x1E // with pins SA0=0, SA1=0
 
 // FXOS8700CQ internal register addresses
-#define FXOS8700CQ_STATUS			0x00
-#define FXOS8700CQ_WHOAMI 			0x0D
-#define FXOS8700CQ_XYZ_DATA_CFG 	0x0E
-#define FXOS8700CQ_CTRL_REG1 		0x2A
-#define FXOS8700CQ_M_CTRL_REG1 		0x5B
-#define FXOS8700CQ_M_CTRL_REG2 		0x5C
-#define FXOS8700CQ_WHOAMI_VAL 		0xC7
+#define FXOS8700CQ_STATUS					0x00
+#define FXOS8700CQ_WHOAMI 					0x0D
+#define FXOS8700CQ_XYZ_DATA_CFG 			0x0E
+#define FXOS8700CQ_CTRL_REG1 				0x2A
+#define FXOS8700CQ_M_CTRL_REG1 				0x5B
+#define FXOS8700CQ_M_CTRL_REG2 				0x5C
+#define FXOS8700CQ_WHOAMI_VAL 				0xC7
+#define FXOS8700CQ_XYZ_ACC_START_REGISTER 	0x01
+#define FXOS8700CQ_XYZ_MAG_START_REGISTER 	0x33
 
 /*
 	The reference driver code shown in block read of the FXOS8700CQ
@@ -24,7 +26,9 @@
 */
 
 // number of bytes to be read from the FXOS8700CQ
-#define FXOS8700CQ_READ_LEN 		13 // status plus 6 channels = 13 bytes
+#define FXOS8700CQ_READ_LEN 			12 // 6 acc channels + 6 mag channels = 12 bytes
+#define FXOS8700CQ_ACC_READ_LEN 		6 // plus 6 channels = 6 bytes
+#define FXOS8700CQ_MAG_READ_LEN 		6 // plus 6 channels = 6 bytes
 
 int accFd;
 char *buffer;
@@ -37,7 +41,7 @@ char *buffer;
 int FXOS8700CQ_Init()
 {
 	char *modulePath = "/dev/i2c-3";
-	uint8_t databyte;
+	uint8_t databyte[2];
 
 	if ((accFd = open(modulePath, O_RDWR)) < 0) 
 	{
@@ -45,7 +49,7 @@ int FXOS8700CQ_Init()
 		perror("Failed to open the i2c bus");
 		return (I2C_ERROR);
 	}
-	printf("hoa");
+
 	// open comunication to FXOS8700CQ
 	if (ioctl(accFd, I2C_SLAVE_FORCE, FXOS8700CQ_SLAVE_ADDR) < 0)
 	{
@@ -59,9 +63,10 @@ int FXOS8700CQ_Init()
 	// standby
 	// [7-1] = 0000 000
 	// [0]: active=0
-	databyte = 0x00;
+	databyte[0]	= FXOS8700CQ_CTRL_REG1;
+	databyte[1] = 0x00;
 
-	if(write( accFd, &databyte, 1) <= 0)
+	if(write( accFd, &databyte, 2) <= 0)
 	{
 		buffer = strerror(errno);
         printf("%s\n\n", buffer);
@@ -75,8 +80,9 @@ int FXOS8700CQ_Init()
 	// [5]: m_ost=0: no one-shot magnetic measurement
 	// [4-2]: m_os=111=7: 8x oversampling (for 200Hz) to reduce magnetometer noise
 	// [1-0]: m_hms=11=3: select hybrid mode with accel and magnetometer active
-	databyte = 0x1F;
-	if(write( accFd, &databyte, 1) <= 0)
+	databyte[0]	= FXOS8700CQ_M_CTRL_REG1;
+	databyte[1] = 0x1F;
+	if(write( accFd, &databyte, 2) <= 0)
 	{
 		buffer =  strerror(errno);
         printf("%s\n\n", buffer);
@@ -91,8 +97,9 @@ int FXOS8700CQ_Init()
 	// [3]: m_maxmin_dis_ths=0
 	// [2]: m_maxmin_rst=0
 	// [1-0]: m_rst_cnt=00 to enable magnetic reset each cycle
-	databyte = 0x20;
-	if(write( accFd, &databyte, 1) <= 0)
+	databyte[0]	= FXOS8700CQ_M_CTRL_REG2;
+	databyte[1] = 0x20;
+	if(write( accFd, &databyte, 2) <= 0)
 	{
 		buffer =  strerror(errno);
         printf("%s\n\n", buffer);
@@ -108,8 +115,9 @@ int FXOS8700CQ_Init()
 	// [3]: reserved
 	// [2]: reserved
 	// [1-0]: fs=01 for accelerometer range of +/-4g range with 0.488mg/LSB
-	databyte = 0x01;
-	if(write( accFd, &databyte, 1) <= 0)
+	databyte[0]	= FXOS8700CQ_XYZ_DATA_CFG;
+	databyte[1] = 0x01;
+	if(write( accFd, &databyte, 2) <= 0)
 	{
 		buffer =  strerror(errno);
         printf("%s\n\n", buffer);
@@ -123,8 +131,9 @@ int FXOS8700CQ_Init()
 	// [2]: lnoise=1 for low noise mode
 	// [1]: f_read=0 for normal 16 bit reads
 	// [0]: active=1 to take the part out of standby and enable sampling
-	databyte = 0x0D;
-	if(write( accFd, &databyte, 1) <= 0)
+	databyte[0]	= FXOS8700CQ_CTRL_REG1;
+	databyte[1] = 0x0D;
+	if(write( accFd, &databyte, 2) <= 0)
 	{
 		buffer =  strerror(errno);
         printf("%s\n\n", buffer);
@@ -139,10 +148,23 @@ int FXOS8700CQ_Init()
 // FXOS8700CQ (13 bytes)
 int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 {
-	uint8_t Buffer[FXOS8700CQ_READ_LEN]; // read buffer
+	uint8_t accBuffer[FXOS8700CQ_ACC_READ_LEN]; // read buffer
+	uint8_t magBuffer[FXOS8700CQ_MAG_READ_LEN]; // read buffer
+	uint8_t addrToRead;
 	
-	// read FXOS8700CQ_READ_LEN=13 bytes (status byte and the six channels of data)
-	if (read(accFd,Buffer,FXOS8700CQ_READ_LEN) != FXOS8700CQ_READ_LEN) 
+	/*Read acc data from 0x01 addr to 0x06*/
+	addrToRead = FXOS8700CQ_XYZ_ACC_START_REGISTER;
+
+	if(write( accFd, &addrToRead, 1) <= 0)
+	{
+		buffer =  strerror(errno);
+        printf("%s\n\n", buffer);
+		perror("Failed to write the start addres to read");
+		return (I2C_ERROR);
+	}
+
+	// read FXOS8700CQ_READ_LEN=6 bytes (status byte and the six channels of data)
+	if (read( accFd, accBuffer, FXOS8700CQ_ACC_READ_LEN) != FXOS8700CQ_ACC_READ_LEN) 
 	{
 
         buffer =  strerror(errno);
@@ -154,13 +176,38 @@ int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 	{
 
 		// copy the 14 bit accelerometer byte data into 16 bit words
-		pAccelData->x = (int16_t)(((Buffer[1] << 8) | Buffer[2]))>> 2;
-		pAccelData->y = (int16_t)(((Buffer[3] << 8) | Buffer[4]))>> 2;
-		pAccelData->z = (int16_t)(((Buffer[5] << 8) | Buffer[6]))>> 2;
+		pAccelData->x = (int16_t)(((accBuffer[0] << 8) | accBuffer[1]))>> 2;
+		pAccelData->y = (int16_t)(((accBuffer[2] << 8) | accBuffer[3]))>> 2;
+		pAccelData->z = (int16_t)(((accBuffer[4] << 8) | accBuffer[5]))>> 2;
+
+	}
+
+	/*Read mag data from 0x33 addr to 0x38*/
+	addrToRead = FXOS8700CQ_XYZ_MAG_START_REGISTER;
+
+	if(write( accFd, &addrToRead, 1) <= 0)
+	{
+		buffer =  strerror(errno);
+        printf("%s\n\n", buffer);
+		perror("Failed to write the start addres to read");
+		return (I2C_ERROR);
+	}
+
+	// read FXOS8700CQ_MAG_READ_LEN=6 bytes (status byte and the six channels of data)
+	if (read( accFd, accBuffer, FXOS8700CQ_MAG_READ_LEN) != FXOS8700CQ_MAG_READ_LEN) 
+	{
+
+        buffer =  strerror(errno);
+        printf("%s\n\n", buffer);
+		return I2C_ERROR;
+
+    } 
+	else
+	{
 		// copy the magnetometer byte data into 16 bit words
-		pMagnData->x = (Buffer[7] << 8) | Buffer[8];
-		pMagnData->y = (Buffer[9] << 8) | Buffer[10];
-		pMagnData->z = (Buffer[11] << 8) | Buffer[12];
+		pMagnData->x = (magBuffer[0] << 8) | magBuffer[1];
+		pMagnData->y = (magBuffer[2] << 8) | magBuffer[3];
+		pMagnData->z = (magBuffer[4] << 8) | magBuffer[5];
 
 	}
 

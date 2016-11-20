@@ -178,9 +178,9 @@ int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 	{
 
 		// copy the 14 bit accelerometer byte data into 16 bit words
-		pAccelData->x = (int16_t)(((Buffer[FXOS8700CQ_X_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_X_LSB_ACC_REGISTER]));
-		pAccelData->y = (int16_t)(((Buffer[FXOS8700CQ_Y_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Y_LSB_ACC_REGISTER]));
-		pAccelData->z = (int16_t)(((Buffer[FXOS8700CQ_Z_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Z_LSB_ACC_REGISTER]));
+		pAccelData->x = (int16_t)(((Buffer[FXOS8700CQ_X_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_X_LSB_ACC_REGISTER]) >> 2);
+		pAccelData->y = (int16_t)(((Buffer[FXOS8700CQ_Y_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Y_LSB_ACC_REGISTER]) >> 2);
+		pAccelData->z = (int16_t)(((Buffer[FXOS8700CQ_Z_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Z_LSB_ACC_REGISTER]) >> 2);
 
 		// copy the magnetometer byte data into 16 bit words
 		pMagnData->x = (Buffer[FXOS8700CQ_X_MSB_MAG_REGISTER] << 8) | Buffer[FXOS8700CQ_X_LSB_MAG_REGISTER];

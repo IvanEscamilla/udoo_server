@@ -46,6 +46,14 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);	
 	}
 
+	/*Configurando Giroscopio*/	
+	if(FXAS21002_Init() < 0)
+	{
+		printf("\n Inicialización Giroscopio fallida!\n");
+        exit(EXIT_FAILURE);	
+	}
+
+
 	if (pthread_mutex_init(&lock, NULL) != 0)
 	{
 		printf("\n Inicialización mutex fallida!\n");

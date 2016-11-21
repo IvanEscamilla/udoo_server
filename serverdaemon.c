@@ -42,7 +42,7 @@ typedef struct rCommand {
    unsigned char  SOF;
    unsigned char  Sensor;
    unsigned char  dataLength;
-   uint16_t 	  data[9];
+   unsigned short data[9];
    unsigned char  CS;
 } responseCommand;
 

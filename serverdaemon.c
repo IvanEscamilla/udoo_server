@@ -436,21 +436,21 @@ static void *vfClientThread(void* vpArgs)
 
 			int cs =	(int)response.SOF + (int)response.Sensor + (int)response.dataLength + (int)response.data[0] + (int)response.data[1] + (int)response.data[2] + (int)response.data[3] + (int)response.data[4] + (int)response.data[5] + (int)response.data[6] + (int)response.data[7] + (int)response.data[8];
 			response.CS = (unsigned char) cs;
-			
+
 			printf("El tamaño es de %i\n", sizeof(response));
-			printf("SOF:    	int val: %i  hex val: %#2x \n\n", response.SOF, response.SOF);
-			printf("Sensor: 	int val: %i  hex val: %#2x \n\n", response.Sensor, response.Sensor);
-			printf("dataLength: int val: %i  hex val: %#2x \n\n", response.dataLength, response.dataLength);
-			printf("data[0]: 	int val: %i  hex val: %#2x \n\n", response.data[0], response.data[0]);
-			printf("data[1]: 	int val: %i  hex val: %#2x \n\n", response.data[1], response.data[1]);
-			printf("data[2]: 	int val: %i  hex val: %#2x \n\n", response.data[2], response.data[2]);
-			printf("data[3]: 	int val: %i  hex val: %#2x \n\n", response.data[3], response.data[3]);
-			printf("data[4]: 	int val: %i  hex val: %#2x \n\n", response.data[4], response.data[4]);
-			printf("data[5]: 	int val: %i  hex val: %#2x \n\n", response.data[5], response.data[5]);
-			printf("data[6]: 	int val: %i  hex val: %#2x \n\n", response.data[6], response.data[6]);
-			printf("data[7]: 	int val: %i  hex val: %#2x \n\n", response.data[7], response.data[7]);
-			printf("data[8]: 	int val: %i  hex val: %#2x \n\n", response.data[8], response.data[8]);
-			printf("CS: 		int val: %i  hex val: %#2x \n\n", response.CS, response.CS);
+			printf("SOF:    	int val: %i  hex val: %#2x 	size: %i \n", response.SOF, response.SOF, sizeof(response.SOF));
+			printf("Sensor: 	int val: %i  hex val: %#2x 	size: %i \n", response.Sensor, response.Sensor, sizeof(response.Sensor));
+			printf("dataLength:	int val: %i  hex val: %#2x 	size: %i \n", response.dataLength, response.dataLength, sizeof(response.dataLength));
+			printf("data[0]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[0], response.data[0], sizeof(response.data[0]));
+			printf("data[1]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[1], response.data[1], sizeof(response.data[1]));
+			printf("data[2]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[2], response.data[2], sizeof(response.data[2]));
+			printf("data[3]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[3], response.data[3], sizeof(response.data[3]));
+			printf("data[4]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[4], response.data[4], sizeof(response.data[4]));
+			printf("data[5]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[5], response.data[5], sizeof(response.data[5]));
+			printf("data[6]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[6], response.data[6], sizeof(response.data[6]));
+			printf("data[7]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[7], response.data[7], sizeof(response.data[7]));
+			printf("data[8]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[8], response.data[8], sizeof(response.data[8]));
+			printf("CS: 		int val: %i  hex val: %#2x 	size: %i \n", response.CS, response.CS, sizeof(response.CS));
 
 			/*Response to client*/
 			if(write(socket, &response, sizeof(response)) <= 0)

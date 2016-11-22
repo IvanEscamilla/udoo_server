@@ -431,6 +431,21 @@ static void *vfClientThread(void* vpArgs)
 				response.CS 		= 0xFF;
 				printf("Error en el mensaje checksum fail...\n\n");
 			}
+			
+			printf("El tamaño es de %i\n", sizeof(response));
+			printf("SOF:    	int val: %i  hex val: %#2x \n\n", response.SOF, response.SOF);
+			printf("Sensor: 	int val: %i  hex val: %#2x \n\n", response.Sensor, response.Sensor);
+			printf("dataLength: int val: %i  hex val: %#2x \n\n", response.dataLength, response.dataLength);
+			printf("data[0]: 	int val: %i  hex val: %#2x \n\n", response.data[0], response.data[0]);
+			printf("data[1]: 	int val: %i  hex val: %#2x \n\n", response.data[1], response.data[1]);
+			printf("data[2]: 	int val: %i  hex val: %#2x \n\n", response.data[2], response.data[2]);
+			printf("data[3]: 	int val: %i  hex val: %#2x \n\n", response.data[3], response.data[3]);
+			printf("data[4]: 	int val: %i  hex val: %#2x \n\n", response.data[4], response.data[4]);
+			printf("data[5]: 	int val: %i  hex val: %#2x \n\n", response.data[5], response.data[5]);
+			printf("data[6]: 	int val: %i  hex val: %#2x \n\n", response.data[6], response.data[6]);
+			printf("data[7]: 	int val: %i  hex val: %#2x \n\n", response.data[7], response.data[7]);
+			printf("data[8]: 	int val: %i  hex val: %#2x \n\n", response.data[8], response.data[8]);
+			printf("CS: 		int val: %i  hex val: %#2x \n\n", response.CS, response.CS);
 
 			/*Response to client*/
 			if(write(socket, &response, sizeof(response)) <= 0)

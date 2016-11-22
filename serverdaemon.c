@@ -432,6 +432,11 @@ static void *vfClientThread(void* vpArgs)
 				printf("Error en el mensaje checksum fail...\n\n");
 			}
 			
+			/*Calculando checksum*/
+
+			int cs =	(int)response.SOF + (int)response.Sensor + (int)response.dataLength + (int)response.data[0] + (int)response.data[1] + (int)response.data[2] + (int)response.data[3] + (int)response.data[4] + (int)response.data[5] + (int)response.data[6] + (int)response.data[7] + (int)response.data[8];
+			response.CS = (unsigned char) cs;
+			
 			printf("El tamaño es de %i\n", sizeof(response));
 			printf("SOF:    	int val: %i  hex val: %#2x \n\n", response.SOF, response.SOF);
 			printf("Sensor: 	int val: %i  hex val: %#2x \n\n", response.Sensor, response.Sensor);

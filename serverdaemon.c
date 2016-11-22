@@ -42,8 +42,8 @@ typedef struct rCommand {
    unsigned char  SOF;
    unsigned char  Sensor;
    unsigned char  dataLength;
-   short data[9];
    unsigned char  CS;
+   short data[9];
 } responseCommand;
 
 pthread_t threadId;

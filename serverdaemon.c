@@ -175,7 +175,7 @@ static void *vfClientThread(void* vpArgs)
 			
 			int checksum;
 			clientCommand command;
-			responseCommand response = {0, 0, 0, {0,0,0,0,0,0,0,0,0}, 0};
+			responseCommand response = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
 			SRAWDATA sAccRawData;
 			SRAWDATA sMagRawData;
 			SGYRORAWDATA sGyroRawData;

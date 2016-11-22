@@ -173,7 +173,7 @@ static void *vfClientThread(void* vpArgs)
 		{  
 			pthread_mutex_lock(&lock);
 			
-			int checksum;
+			unsigned char checksum;
 			clientCommand command;
 			responseCommand response = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
 			SRAWDATA sAccRawData;

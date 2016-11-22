@@ -196,6 +196,8 @@ static void *vfClientThread(void* vpArgs)
 			command.CS = (int)buffer[3];
 			
 			checksum = command.SOF + command.Sensor + command.Eje;
+			printf("checksum: %i\n",checksum);
+			printf("CS: %i\n\n", command.CS);
 			/*Validando Checksum*/
 			if(checksum == command.CS)
 			{

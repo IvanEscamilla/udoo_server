@@ -430,7 +430,7 @@ static void *vfClientThread(void* vpArgs)
 
 				response.Sensor = error;
 				response.dataLength = 0;
-				response.CS 		= 0xFF;
+				response.CS 		= 255;
 				printf("Error en el mensaje checksum fail...\n\n");
 			}
 			

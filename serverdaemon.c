@@ -55,11 +55,11 @@ static void  *vfnClientThread(void* vpArgs);
 int main(int argc, char *argv[])
 {
 	/*Se obtiene el puerto al que escuchará el servidor pasado por parametro*/
-    int iPuerto = atoi(argv[1]);
-    int iSocketFd;
-    int iBindFd;
-    int iListenFd;
-    int iClient;
+    int32_t iPuerto = atoi(argv[1]);
+    int32_t iSocketFd;
+    int32_t iBindFd;
+    int32_t iListenFd;
+    int32_t iClient;
 	
 	/*Configurando Magnetometro y Acelerometro*/	
 	if(FXOS8700CQ_Init() < 0)

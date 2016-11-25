@@ -47,6 +47,13 @@ typedef struct tResponse {
    int16_t data[9];
 } SRESPONSECOMMAND;
 
+typedef struct
+{
+	int16_t x;
+	int16_t y;
+	int16_t z;
+} SRAWDATA;
+
 pthread_t gpThreadId;
 pthread_mutex_t gpLock;
 

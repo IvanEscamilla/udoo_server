@@ -34,7 +34,7 @@
 #define FXAS21002_FULL_READ_LEN 	7 // 0x00 to 0x06 = 7 bytes
 
 int32_t gdwGyroFd;
-int8_t 	*gbpBuffer;
+char 	*gbpBuffer;
 
 /*
 	function configures FXAS21002 combination accelerometer and 
@@ -43,7 +43,7 @@ int8_t 	*gbpBuffer;
 
 int32_t dwfnFXAS21002Init()
 {
-	int8_t *bpModulePath = "/dev/i2c-3";
+	char *bpModulePath = "/dev/i2c-3";
 	uint8_t bDatabyte[2];
 
 	if ((gdwGyroFd = open(bpModulePath, O_RDWR)) < 0) 

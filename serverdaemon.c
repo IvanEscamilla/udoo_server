@@ -1,7 +1,6 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -28,22 +27,22 @@
 #define EJE_XYZ 	  0x04
 
 
-typedef int32_t bool;
+typedef int bool;
 #define TRUE 			1
 #define FALSE 			0
 
 typedef struct tClient {
-   int32_t  SOF;
-   int32_t  Sensor;
-   int32_t  Eje;
-   int32_t  CS;
+   int  SOF;
+   int  Sensor;
+   int  Eje;
+   int  CS;
 } tClientCommand;
 
 typedef struct tResponse {
-   uint8_t  SOF;
-   uint8_t  Sensor;
-   uint8_t  dataLength;
-   uint8_t  CS;
+   unsigned char  SOF;
+   unsigned char  Sensor;
+   unsigned char  dataLength;
+   unsigned char  CS;
    short data[9];
 } tResponseCommand;
 
@@ -55,11 +54,11 @@ static void  *vfnClientThread(void* vpArgs);
 int main(int argc, char *argv[])
 {
 	/*Se obtiene el puerto al que escuchará el servidor pasado por parametro*/
-    int32_t iPuerto = atoi(argv[1]);
-    int32_t iSocketFd;
-    int32_t iBindFd;
-    int32_t iListenFd;
-    int32_t iClient;
+    int iPuerto = atoi(argv[1]);
+    int iSocketFd;
+    int iBindFd;
+    int iListenFd;
+    int iClient;
 	
 	/*Configurando Magnetometro y Acelerometro*/	
 	if(FXOS8700CQ_Init() < 0)
@@ -145,13 +144,13 @@ static void *vfnClientThread(void* vpArgs)
 	/*Variable control de vida del thread*/
 	bool bCloseSocket = FALSE;
 	/*Variable length del mensaje recibido*/
-  	int32_t iMsgLenght;
+  	int iMsgLenght;
 	/*Buffer*/
-  	int8_t *cpBuffer;
+  	char *cpBuffer;
 	/*Obtener socket del cliente*/
-  	int32_t iSocket = *((int32_t *)vpArgs);
+  	int iSocket = *((int *)vpArgs);
 	/*reservando espacio de memoria para el buffer*/
- 	cpBuffer = (int8_t *)malloc(MAXLENGHT);
+ 	cpBuffer = (char *)malloc(MAXLENGHT);
 
   	if (cpBuffer==NULL)
 	{
@@ -175,7 +174,7 @@ static void *vfnClientThread(void* vpArgs)
 		{  
 			pthread_mutex_lock(&lock);
 			
-			uint8_t ucChecksum;
+			unsigned char ucChecksum;
 			tClientCommand tCommand;
 			tResponseCommand tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
 			SRAWDATA tAccRawData;
@@ -429,7 +428,7 @@ static void *vfnClientThread(void* vpArgs)
 				/*Calculando Checksum*/
 
 				int cs =	(int)tResponse.SOF + (int)tResponse.Sensor + (int)tResponse.dataLength + (int)tResponse.data[0] + (int)tResponse.data[1] + (int)tResponse.data[2] + (int)tResponse.data[3] + (int)tResponse.data[4] + (int)tResponse.data[5] + (int)tResponse.data[6] + (int)tResponse.data[7] + (int)tResponse.data[8];
-				tResponse.CS = (uint8_t) cs;
+				tResponse.CS = (unsigned char) cs;
 
 				printf("El tamaño es de %i\n", sizeof(tResponse));
 				printf("SOF:    	int val: %i  hex val: %#2x 	size: %i \n", tResponse.SOF, tResponse.SOF, sizeof(tResponse.SOF));

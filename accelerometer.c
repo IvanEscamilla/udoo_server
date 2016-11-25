@@ -46,12 +46,7 @@
 
 int accFd;
 char *buffer;
-typedef struct
-{
-	int16_t x;
-	int16_t y;
-	int16_t z;
-} SRAWDATA;
+
 /*
 	function configures FXOS8700CQ combination accelerometer and 
 	magnetometer sensor 

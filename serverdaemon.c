@@ -435,6 +435,7 @@ static void *vfnClientThread(void* vpArgs)
 				printf("SOF:    	int val: %i  hex val: %#2x 	size: %i \n", tResponse.SOF, tResponse.SOF, sizeof(tResponse.SOF));
 				printf("Sensor: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.Sensor, tResponse.Sensor, sizeof(tResponse.Sensor));
 				printf("dataLength:	int val: %i  hex val: %#2x 	size: %i \n", tResponse.dataLength, tResponse.dataLength, sizeof(tResponse.dataLength));
+				printf("CS: 		int val: %i  hex val: %#2x 	size: %i \n", tResponse.CS, tResponse.CS, sizeof(tResponse.CS));
 				printf("data[0]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[0], tResponse.data[0], sizeof(tResponse.data[0]));
 				printf("data[1]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[1], tResponse.data[1], sizeof(tResponse.data[1]));
 				printf("data[2]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[2], tResponse.data[2], sizeof(tResponse.data[2]));
@@ -444,8 +445,6 @@ static void *vfnClientThread(void* vpArgs)
 				printf("data[6]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[6], tResponse.data[6], sizeof(tResponse.data[6]));
 				printf("data[7]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[7], tResponse.data[7], sizeof(tResponse.data[7]));
 				printf("data[8]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[8], tResponse.data[8], sizeof(tResponse.data[8]));
-				printf("CS: 		int val: %i  hex val: %#2x 	size: %i \n", tResponse.CS, tResponse.CS, sizeof(tResponse.CS));
-				printf("Respuesta:  %#22x 		 size: %i \n", tResponse, sizeof(tResponse));
 
 				
 			}

@@ -33,20 +33,20 @@
 // number of bytes to be read from the FXAS21002
 #define FXAS21002_FULL_READ_LEN 	7 // 0x00 to 0x06 = 7 bytes
 
-int32_t gbGyroFd;
-int8_t *gbpBuffer;
+int gyroFd;
+char *buffer;
 
 /*
 	function configures FXAS21002 combination accelerometer and 
 	magnetometer sensor 
 */
 
-int32_t dwfnFXAS21002Init()
+int FXAS21002_Init()
 {
-	int8_t *bpModulePath = "/dev/i2c-3";
-	uint8_t bDatabyte[2];
+	char *modulePath = "/dev/i2c-3";
+	uint8_t databyte[2];
 
-	if ((gbGyroFd = open(bpModulePath, O_RDWR)) < 0) 
+	if ((gyroFd = open(modulePath, O_RDWR)) < 0) 
 	{
 		/* ERROR HANDLING: you can check errno to see what went wrong */
 		perror("Failed to open the i2c bus");
@@ -54,10 +54,10 @@ int32_t dwfnFXAS21002Init()
 	}
 
 	// open comunication to FXAS21002
-	if (ioctl(gbGyroFd, I2C_SLAVE_FORCE, FXAS21002_SLAVE_ADDR) < 0)
+	if (ioctl(gyroFd, I2C_SLAVE_FORCE, FXAS21002_SLAVE_ADDR) < 0)
 	{
-		gbpBuffer = strerror(errno);
-        printf("%s\n\n", gbpBuffer);
+		buffer = strerror(errno);
+        printf("%s\n\n", buffer);
 		perror("Failed to open comunication to FXAS21002");
 		return (I2C_ERROR);
 	}
@@ -71,13 +71,13 @@ int32_t dwfnFXAS21002Init()
 	// [1]: 1: Standby/Active mode selection
 	// [0]: 0: Standby/Ready mode selection
 	
-	bDatabyte[0]	= FXAS21002_CTRL_REG1;
-	bDatabyte[1] = 0x16;
+	databyte[0]	= FXAS21002_CTRL_REG1;
+	databyte[1] = 0x16;
 
-	if(write( gbGyroFd, &bDatabyte, 2) <= 0)
+	if(write( gyroFd, &databyte, 2) <= 0)
 	{
-		gbpBuffer = strerror(errno);
-        printf("%s\n\n", gbpBuffer);
+		buffer = strerror(errno);
+        printf("%s\n\n", buffer);
 		perror("Failed to write to accelerometer control register 1 to place FXAS21002 into standby");
 		return (I2C_ERROR);
 	}
@@ -88,23 +88,23 @@ int32_t dwfnFXAS21002Init()
 
 // read status and the three channels of accelerometer and magnetometer data from
 // FXAS21002 (6 bytes)
-int32_t dwfnReadGyroData(SRAWDATA *pGyroData)
+int ReadGyroData(SGYRORAWDATA *pGyroData)
 {
-	uint8_t bBuffer[FXAS21002_FULL_READ_LEN];
+	uint8_t Buffer[FXAS21002_FULL_READ_LEN];
 	
 	// read FXAS21002_FULL_READ_LEN = 13 bytes (status byte and the six channels of data)
-	if (read( gbGyroFd, bBuffer, FXAS21002_FULL_READ_LEN) != FXAS21002_FULL_READ_LEN) 
+	if (read( gyroFd, Buffer, FXAS21002_FULL_READ_LEN) != FXAS21002_FULL_READ_LEN) 
 	{
-        gbpBuffer =  strerror(errno);
-        printf("%s\n\n", gbpBuffer);
+        buffer =  strerror(errno);
+        printf("%s\n\n", buffer);
 		return I2C_ERROR;
     } 
 	else
 	{
 		// copy the 16 bit gyroscope byte data into 16 bit words
-		pGyroData->x = (int16_t)(((bBuffer[FXAS21002_X_MSB_REGISTER] << 8) | bBuffer[FXAS21002_X_LSB_REGISTER]));
-		pGyroData->y = (int16_t)(((bBuffer[FXAS21002_Y_MSB_REGISTER] << 8) | bBuffer[FXAS21002_Y_LSB_REGISTER]));
-		pGyroData->z = (int16_t)(((bBuffer[FXAS21002_Z_MSB_REGISTER] << 8) | bBuffer[FXAS21002_Z_LSB_REGISTER]));
+		pGyroData->x = (int16_t)(((Buffer[FXAS21002_X_MSB_REGISTER] << 8) | Buffer[FXAS21002_X_LSB_REGISTER]));
+		pGyroData->y = (int16_t)(((Buffer[FXAS21002_Y_MSB_REGISTER] << 8) | Buffer[FXAS21002_Y_LSB_REGISTER]));
+		pGyroData->z = (int16_t)(((Buffer[FXAS21002_Z_MSB_REGISTER] << 8) | Buffer[FXAS21002_Z_LSB_REGISTER]));
 
 	}
 

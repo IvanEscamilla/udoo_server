@@ -37,7 +37,7 @@ typedef struct tClient {
    uint8_t  Sensor;
    uint8_t  Eje;
    uint8_t  CS;
-} SCLIENTCOMMAND;
+} tClientCommand;
 
 typedef struct tResponse {
    uint8_t  SOF;
@@ -45,7 +45,7 @@ typedef struct tResponse {
    uint8_t  dataLength;
    uint8_t  CS;
    int16_t data[9];
-} SRESPONSECOMMAND;
+} tResponseCommand;
 
 pthread_t gpThreadId;
 pthread_mutex_t gpLock;
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 	}
 
 	/*Configurando Giroscopio*/	
-	if(dwfnFXAS21002Init() < 0)
+	if(FXAS21002_Init() < 0)
 	{
 		printf("\n Inicialización Giroscopio fallida!\n");
         exit(EXIT_FAILURE);	
@@ -176,11 +176,11 @@ static void *vfnClientThread(void* vpArgs)
 			pthread_mutex_lock(&gpLock);
 			
 			uint8_t bChecksum;
-			SCLIENTCOMMAND tCommand;
-			SRESPONSECOMMAND tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
+			tClientCommand tCommand;
+			tResponseCommand tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
 			SRAWDATA tAccRawData;
 			SRAWDATA tMagRawData;
-			SRAWDATA tGyroRawData;
+			SGYRORAWDATA tGyroRawData;
 
 			/*Response SOF*/
 			tResponse.SOF = 0xaa;
@@ -304,7 +304,7 @@ static void *vfnClientThread(void* vpArgs)
 					{
 						tResponse.Sensor = GIROSCOPIO;
 						printf("Leyendo datos del giroscopio...\n");
-						dwfnReadGyroData(&tGyroRawData);
+						ReadGyroData(&tGyroRawData);
 						switch(tCommand.Eje)
 						{
 							case EJE_X:
@@ -353,7 +353,7 @@ static void *vfnClientThread(void* vpArgs)
 						tResponse.Sensor = TODOS;
 						printf("Leyendo datos de todos los sensores...\n");
 						ReadAccelMagnData(&tAccRawData, &tMagRawData);
-						dwfnReadGyroData(&tGyroRawData);
+						ReadGyroData(&tGyroRawData);
 						switch(tCommand.Eje)
 						{
 							case EJE_X:

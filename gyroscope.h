@@ -14,14 +14,12 @@
 #define I2C_ERROR	-1
 #define I2C_OK		 1
 
-#ifndef SRAWDATA
 typedef struct
 {
 	int16_t x;
 	int16_t y;
 	int16_t z;
-} SRAWDATA;
-#endif
+} SGYRORAWDATA;
 
-int32_t dwfnFXAS21002Init();
-int32_t dwfnReadGyroData(SRAWDATA *pGyroData);
+int FXAS21002_Init();
+int ReadGyroData(SGYRORAWDATA *pGyroData);

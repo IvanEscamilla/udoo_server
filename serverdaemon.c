@@ -192,10 +192,10 @@ static void *vfnClientThread(void* vpArgs)
 			printf("CS:    \"%#2x\"\n\n",bpBuffer[3]);
 			
 			/*Almacenando valores*/
-			tCommand.SOF = (int)bpBuffer[0];
-			tCommand.Sensor = (int)bpBuffer[1];
-			tCommand.Eje = (int)bpBuffer[2];
-			tCommand.CS = (int)bpBuffer[3];
+			tCommand.SOF = (uint8_t)bpBuffer[0];
+			tCommand.Sensor = (uint8_t)bpBuffer[1];
+			tCommand.Eje = (uint8_t)bpBuffer[2];
+			tCommand.CS = (uint8_t)bpBuffer[3];
 			
 			bChecksum = tCommand.SOF + tCommand.Sensor + tCommand.Eje;
 			printf("Checksum: %i\n",bChecksum);
@@ -428,8 +428,8 @@ static void *vfnClientThread(void* vpArgs)
 
 				/*Calculando Checksum*/
 
-				int cs =	(int)tResponse.SOF + (int)tResponse.Sensor + (int)tResponse.dataLength + (int)tResponse.data[0] + (int)tResponse.data[1] + (int)tResponse.data[2] + (int)tResponse.data[3] + (int)tResponse.data[4] + (int)tResponse.data[5] + (int)tResponse.data[6] + (int)tResponse.data[7] + (int)tResponse.data[8];
-				tResponse.CS = (uint8_t) cs;
+				int32_t dwCs =	(int32_t)tResponse.SOF + (int32_t)tResponse.Sensor + (int32_t)tResponse.dataLength + (int32_t)tResponse.data[0] + (int32_t)tResponse.data[1] + (int32_t)tResponse.data[2] + (int32_t)tResponse.data[3] + (int32_t)tResponse.data[4] + (int32_t)tResponse.data[5] + (int32_t)tResponse.data[6] + (int32_t)tResponse.data[7] + (int32_t)tResponse.data[8];
+				tResponse.CS = (uint8_t) dwCs;
 
 				printf("El tamaño es de %i\n", sizeof(tResponse));
 				printf("SOF:    	int val: %i  hex val: %#2x 	size: %i \n", tResponse.SOF, tResponse.SOF, sizeof(tResponse.SOF));

@@ -445,7 +445,7 @@ static void *vfnClientThread(void* vpArgs)
 				printf("data[7]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[7], tResponse.data[7], sizeof(tResponse.data[7]));
 				printf("data[8]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[8], tResponse.data[8], sizeof(tResponse.data[8]));
 				printf("CS: 		int val: %i  hex val: %#2x 	size: %i \n", tResponse.CS, tResponse.CS, sizeof(tResponse.CS));
-				printf("Respuesta:  %#x 		 size: %i \n", tResponse, sizeof(tResponse));
+				printf("Respuesta:  %#22x 		 size: %i \n", tResponse, sizeof(tResponse));
 
 				
 			}

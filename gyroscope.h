@@ -21,5 +21,5 @@ typedef struct
 	int16_t z;
 } SGYRORAWDATA;
 
-int FXAS21002_Init();
-int ReadGyroData(SGYRORAWDATA *pGyroData);
+int32_t dwfnFXAS21002Init();
+int32_t dwfnReadGyroData(SGYRORAWDATA *pGyroData);

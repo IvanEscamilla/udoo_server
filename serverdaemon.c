@@ -14,56 +14,56 @@
 #define LISTEN_BACKLOG 50 //limitando a 50 conexiones en background
 #define MAXLENGHT  100 //100 bytes Max por trama
 //Sensor a leer
-#define acelerometro  0x01
-#define magnetometro  0x02
-#define giroscopio 	  0x03
-#define todos 		  0xFF
-#define error 		  0xFE
+#define ACELEROMETRO  0x01
+#define MAGNETOMETRO  0x02
+#define GIROSCOPIO 	  0x03
+#define TODOS 		  0xFF
+#define ERROR 		  0xFE
 
 //Eje a leer
-#define eje_x  		  0x01
-#define eje_y  		  0x02
-#define eje_z 	  	  0x03
-#define eje_xyz 	  0x04
+#define EJE_X  		  0x01
+#define EJE_Y  		  0x02
+#define EJE_Z 	  	  0x03
+#define EJE_XYZ 	  0x04
 
 
 typedef int bool;
-#define true 1
-#define false 0
+#define TRUE 			1
+#define FALSE 			0
 
-typedef struct cCommand {
+typedef struct tClient {
    int  SOF;
    int  Sensor;
    int  Eje;
    int  CS;
-} clientCommand;
+} tClientCommand;
 
-typedef struct rCommand {
+typedef struct tResponse {
    unsigned char  SOF;
    unsigned char  Sensor;
    unsigned char  dataLength;
    unsigned char  CS;
    short data[9];
-} responseCommand;
+} tResponseCommand;
 
-pthread_t threadId;
+pthread_t pThreadId;
 pthread_mutex_t lock;
 
-static void  *vfClientThread(void* vpArgs);
+static void  *vfnClientThread(void* vpArgs);
 
 int main(int argc, char *argv[])
 {
 	/*Se obtiene el puerto al que escuchará el servidor pasado por parametro*/
-    int Puerto = atoi(argv[1]);
-    int socketFd;
-    int bindFd;
-    int listenFd;
-    int client;
+    int iPuerto = atoi(argv[1]);
+    int iSocketFd;
+    int iBindFd;
+    int iListenFd;
+    int iClient;
 	
-	/*Configurando Magnetometro y acelerometro*/	
+	/*Configurando Magnetometro y Acelerometro*/	
 	if(FXOS8700CQ_Init() < 0)
 	{
-		printf("\n Inicialización Acelerometro y magnetometro fallida!\n");
+		printf("\n Inicialización Acelerometro y Magnetometro fallida!\n");
         exit(EXIT_FAILURE);	
 	}
 
@@ -84,12 +84,12 @@ int main(int argc, char *argv[])
     struct sockaddr_in socketOptions;
     socklen_t addrlen;
 
-    printf("Abriendo Puerto = %i\n\n",Puerto);
+    printf("Abriendo Puerto = %i\n\n",iPuerto);
 	
 	/*Creando un socket de tipo SOCK_STREAM e IPv4 fd guardado en la var */
-    socketFd = socket(AF_INET, SOCK_STREAM, 0);
+    iSocketFd = socket(AF_INET, SOCK_STREAM, 0);
 
-    if (socketFd < 0)
+    if (iSocketFd < 0)
     {
        printf("Error en el socket \n");
        exit(EXIT_FAILURE);
@@ -98,14 +98,14 @@ int main(int argc, char *argv[])
 	printf("Socket Creado!\n");
 	/*Configurnado Socket*/
     socketOptions.sin_family = AF_INET; //Familia AF_INET
-    socketOptions.sin_port = htons(Puerto); // Numero de puerto
+    socketOptions.sin_port = htons(iPuerto); // Numero de puerto
     socketOptions.sin_addr.s_addr = htons(INADDR_ANY); // direccion socket, escuchando en todas las interfases
 	
 	/*Nombrando al socket*/
-    bindFd = bind(socketFd,(struct sockaddr *)&socketOptions, sizeof(struct sockaddr_in));
+    iBindFd = bind(iSocketFd,(struct sockaddr *)&socketOptions, sizeof(struct sockaddr_in));
 	printf("Ruta del socket: %i \n\n",socketOptions.sin_addr.s_addr);
     
-	if (bindFd < 0)
+	if (iBindFd < 0)
     {
        printf("Error del bind \n");
        exit(EXIT_FAILURE);
@@ -113,310 +113,311 @@ int main(int argc, char *argv[])
 	
 	printf("Socket Asignado!\n");
    	/*Escucar conexiones en el socket*/
-    listenFd = listen(socketFd, LISTEN_BACKLOG);
+    iListenFd = listen(iSocketFd, LISTEN_BACKLOG);
 
-    if(listenFd < 0)
+    if(iListenFd < 0)
     {
        printf("Error en el listen \n");
        exit(EXIT_FAILURE);
     }
 	
-	printf("Socket Listo para asignar clientes!...\n");
+	printf("Socket Listo para asignar Clientes!...\n");
     addrlen = sizeof(struct sockaddr_in);
 	
     for(;;)
     {
-		/*En espera de un cliente*/
+		/*En espera de un Cliente*/
 		printf("Esperando cliente...\n");    
-     	client = accept(socketFd,(struct sockaddr *)&socketOptions,&addrlen);
-		printf("Cliente coonectado creando hilo de conexión...\n");
-		/*Creando Hilo vfClientThread mandandole por parametro el socket del cliente para recibir los mensajes del usuario conectado*/
-     	pthread_create(&threadId,NULL,&vfClientThread,(void *)&client);
-     	printf("socket numero: %i creado satisfactoriamente, ejecutando Hilo...\n",client);
+     	iClient = accept(iSocketFd,(struct sockaddr *)&socketOptions,&addrlen);
+		printf("cliente coonectado creando hilo de conexión...\n");
+		/*Creando Hilo vfnClientThread mandandole por parametro el socket del Cliente para recibir los mensajes del usuario conectado*/
+     	pthread_create(&pThreadId,NULL,&vfnClientThread,(void *)&iClient);
+     	printf("socket numero: %i creado satisfactoriamente, ejecutando Hilo...\n",iClient);
     }  
    	
 	pthread_mutex_destroy(&lock);
-	close(client); 
+	close(iClient); 
 }
 
-static void *vfClientThread(void* vpArgs)
+static void *vfnClientThread(void* vpArgs)
 {
 	/*Variable control de vida del thread*/
-	bool closeSocket = false;
+	bool bCloseSocket = FALSE;
 	/*Variable length del mensaje recibido*/
-  	int msgLenght;
+  	int iMsgLenght;
 	/*Buffer*/
-  	char *buffer;
+  	char *cpBuffer;
 	/*Obtener socket del cliente*/
-  	int socket = *((int *)vpArgs);
+  	int iSocket = *((int *)vpArgs);
 	/*reservando espacio de memoria para el buffer*/
- 	buffer = (char *)malloc(MAXLENGHT);
-  	if (buffer==NULL)
+ 	cpBuffer = (char *)malloc(MAXLENGHT);
+
+  	if (cpBuffer==NULL)
 	{
 		printf("No se pudo reservar memoria para el buffer termianando hilo...\n\n");
 		pthread_exit(NULL);	
 	}
 
-	while(closeSocket == false)
+	while(bCloseSocket == FALSE)
 	{
 		/*Limpia Buffer*/
-		memset(buffer,'\0',MAXLENGHT);
+		memset(cpBuffer,'\0',MAXLENGHT);
 		/*Esperando algun mensaje*/
 		printf("Esperando mensaje del cliente...\n");
-		msgLenght = recv(socket, buffer, MAXLENGHT,0);
-		/*nterrupted by a signal or error ocurred*/
-		if(msgLenght <= 0) 
+		iMsgLenght = recv(iSocket, cpBuffer, MAXLENGHT,0);
+		/*nterrupted by a signal or Error ocurred*/
+		if(iMsgLenght <= 0) 
 		{
-			closeSocket = true;
+			bCloseSocket = TRUE;
 		}
 		else
 		{  
 			pthread_mutex_lock(&lock);
 			
-			unsigned char checksum;
-			clientCommand command;
-			responseCommand response = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
-			SRAWDATA sAccRawData;
-			SRAWDATA sMagRawData;
-			SGYRORAWDATA sGyroRawData;
+			unsigned char ucChecksum;
+			tclientCommand tCommand;
+			tresponseCommand tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
+			SRAWDATA tAccRawData;
+			SRAWDATA tMagRawData;
+			SGYRORAWDATA tGyroRawData;
 
 			/*Response SOF*/
-			response.SOF = 0xaa;
+			tResponse.SOF = 0xaa;
 			
 			/*Imprime comando recivido del cliente*/
-			printf("SOF:   \"%#2x\"\n",buffer[0]);
-			printf("Sensor:\"%#2x\"\n",buffer[1]);
-			printf("Eje:   \"%#2x\"\n",buffer[2]);
-			printf("CS:    \"%#2x\"\n\n",buffer[3]);
+			printf("SOF:   \"%#2x\"\n",cpBuffer[0]);
+			printf("Sensor:\"%#2x\"\n",cpBuffer[1]);
+			printf("Eje:   \"%#2x\"\n",cpBuffer[2]);
+			printf("CS:    \"%#2x\"\n\n",cpBuffer[3]);
 			
 			/*Almacenando valores*/
-			command.SOF = (int)buffer[0];
-			command.Sensor = (int)buffer[1];
-			command.Eje = (int)buffer[2];
-			command.CS = (int)buffer[3];
+			tCommand.SOF = (int)cpBuffer[0];
+			tCommand.Sensor = (int)cpBuffer[1];
+			tCommand.Eje = (int)cpBuffer[2];
+			tCommand.CS = (int)cpBuffer[3];
 			
-			checksum = command.SOF + command.Sensor + command.Eje;
-			printf("checksum: %i\n",checksum);
-			printf("CS: %i\n\n", command.CS);
+			ucChecksum = tCommand.SOF + tCommand.Sensor + tCommand.Eje;
+			printf("Checksum: %i\n",ucChecksum);
+			printf("CS: %i\n\n", tCommand.CS);
 			/*Validando Checksum*/
-			if(checksum == command.CS)
+			if(ucChecksum == tCommand.CS)
 			{
 				printf("Interpretando mensaje recibido\n");
-				switch(command.Sensor)
+				switch(tCommand.Sensor)
 				{
-					case acelerometro:
+					case ACELEROMETRO:
 					{
-						response.Sensor = acelerometro;
-						printf("Leyendo datos del acelerometro...\n");
-						ReadAccelMagnData(&sAccRawData, &sMagRawData);
-						switch(command.Eje)
+						tResponse.Sensor = ACELEROMETRO;
+						printf("Leyendo datos del Acelerometro...\n");
+						ReadAccelMagnData(&tAccRawData, &tMagRawData);
+						switch(tCommand.Eje)
 						{
-							case eje_x:
+							case EJE_X:
 							{
-								printf("Leyendo Eje x del acelerometro...\n");
-								printf("X: %i\n",sAccRawData.x);
-								response.dataLength = 1;
-								response.data[0] = sAccRawData.x;
+								printf("Leyendo Eje x del Acelerometro...\n");
+								printf("X: %i\n",tAccRawData.x);
+								tResponse.dataLength = 1;
+								tResponse.data[0] = tAccRawData.x;
 
 							}break;
-							case eje_y:
+							case EJE_Y:
 							{
-								printf("Leyendo Eje y del acelerometro...\n");
-								printf("Y: %i\n",sAccRawData.y);
-								response.dataLength = 1;
-								response.data[0] = sAccRawData.y;
+								printf("Leyendo Eje y del Acelerometro...\n");
+								printf("Y: %i\n",tAccRawData.y);
+								tResponse.dataLength = 1;
+								tResponse.data[0] = tAccRawData.y;
 
 							}break;
-							case eje_z:
+							case EJE_Z:
 							{
-								printf("Leyendo Eje z del acelerometro...\n");
-								printf("Z: %i\n",sAccRawData.z);
-								response.dataLength = 1;
-								response.data[0] = sAccRawData.z;
+								printf("Leyendo Eje z del Acelerometro...\n");
+								printf("Z: %i\n",tAccRawData.z);
+								tResponse.dataLength = 1;
+								tResponse.data[0] = tAccRawData.z;
 
 							}break;
-							case eje_xyz:
+							case EJE_XYZ:
 							{
-								printf("Leyendo Eje x, y, z del acelerometro...\n");
-								printf("X: %i\n",sAccRawData.x);
-								printf("Y: %i\n",sAccRawData.y);
-								printf("Z: %i\n\n",sAccRawData.z);
-								response.dataLength = 3;
-								response.data[0] = sAccRawData.x;
-								response.data[1] = sAccRawData.y;
-								response.data[2] = sAccRawData.z;
+								printf("Leyendo Eje x, y, z del Acelerometro...\n");
+								printf("X: %i\n",tAccRawData.x);
+								printf("Y: %i\n",tAccRawData.y);
+								printf("Z: %i\n\n",tAccRawData.z);
+								tResponse.dataLength = 3;
+								tResponse.data[0] = tAccRawData.x;
+								tResponse.data[1] = tAccRawData.y;
+								tResponse.data[2] = tAccRawData.z;
 
 							}break;
 						}
 
 					}break;
-					case magnetometro:
+					case MAGNETOMETRO:
 					{
-						response.Sensor = magnetometro;
+						tResponse.Sensor = MAGNETOMETRO;
 						printf("Leyendo datos del magnetometro...\n");
-						ReadAccelMagnData(&sAccRawData, &sMagRawData);
-						switch(command.Eje)
+						ReadAccelMagnData(&tAccRawData, &tMagRawData);
+						switch(tCommand.Eje)
 						{
-							case eje_x:
+							case EJE_X:
 							{
 								printf("Leyendo Eje x del magnetometro...\n");
-								printf("X: %i\n",sMagRawData.x);
-								response.dataLength = 1;
-								response.data[0] = sMagRawData.x;
+								printf("X: %i\n",tMagRawData.x);
+								tResponse.dataLength = 1;
+								tResponse.data[0] = tMagRawData.x;
 
 							}break;
-							case eje_y:
+							case EJE_Y:
 							{
 								printf("Leyendo Eje y del magnetometro...\n");
-								printf("Y: %i\n",sMagRawData.y);
-								response.dataLength = 1;
-								response.data[0] = sMagRawData.y;
+								printf("Y: %i\n",tMagRawData.y);
+								tResponse.dataLength = 1;
+								tResponse.data[0] = tMagRawData.y;
 
 
 							}break;
-							case eje_z:
+							case EJE_Z:
 							{
 								printf("Leyendo Eje z del magnetometro...\n");
-								printf("Z: %i\n",sMagRawData.z);
-								response.dataLength = 1;
-								response.data[0] = sMagRawData.z;
+								printf("Z: %i\n",tMagRawData.z);
+								tResponse.dataLength = 1;
+								tResponse.data[0] = tMagRawData.z;
 
 
 							}break;
-							case eje_xyz:
+							case EJE_XYZ:
 							{
 								printf("Leyendo Eje x, y, z del magnetometro...\n");
-								printf("X: %i\n",sMagRawData.x);
-								printf("Y: %i\n",sMagRawData.y);
-								printf("Z: %i\n\n",sMagRawData.z);
-								response.dataLength = 3;
-								response.data[0] = sMagRawData.x;
-								response.data[1] = sMagRawData.y;
-								response.data[2] = sMagRawData.z;
+								printf("X: %i\n",tMagRawData.x);
+								printf("Y: %i\n",tMagRawData.y);
+								printf("Z: %i\n\n",tMagRawData.z);
+								tResponse.dataLength = 3;
+								tResponse.data[0] = tMagRawData.x;
+								tResponse.data[1] = tMagRawData.y;
+								tResponse.data[2] = tMagRawData.z;
 
 							}break;
 						}
 
 					}break;
-					case giroscopio:
+					case GIROSCOPIO:
 					{
-						response.Sensor = giroscopio;
+						tResponse.Sensor = GIROSCOPIO;
 						printf("Leyendo datos del giroscopio...\n");
-						ReadGyroData(&sGyroRawData);
-						switch(command.Eje)
+						ReadGyroData(&tGyroRawData);
+						switch(tCommand.Eje)
 						{
-							case eje_x:
+							case EJE_X:
 							{
 								printf("Leyendo Eje x del giroscopio...\n");
-								printf("X: %i\n",sGyroRawData.x);
-								response.dataLength = 1;
-								response.data[0] = sGyroRawData.x;
+								printf("X: %i\n",tGyroRawData.x);
+								tResponse.dataLength = 1;
+								tResponse.data[0] = tGyroRawData.x;
 
 							}break;
-							case eje_y:
+							case EJE_Y:
 							{
 								printf("Leyendo Eje y del giroscopio...\n");
-								printf("Y: %i\n",sGyroRawData.y);
-								response.dataLength = 1;
-								response.data[0] = sGyroRawData.y;
+								printf("Y: %i\n",tGyroRawData.y);
+								tResponse.dataLength = 1;
+								tResponse.data[0] = tGyroRawData.y;
 
 
 							}break;
-							case eje_z:
+							case EJE_Z:
 							{
 								printf("Leyendo Eje z del giroscopio...\n");
-								printf("Z: %i\n",sGyroRawData.z);
-								response.dataLength = 1;
-								response.data[0] = sGyroRawData.z;
+								printf("Z: %i\n",tGyroRawData.z);
+								tResponse.dataLength = 1;
+								tResponse.data[0] = tGyroRawData.z;
 
 
 							}break;
-							case eje_xyz:
+							case EJE_XYZ:
 							{
 								printf("Leyendo Eje x, y, z del giroscopio...\n");
-								printf("X: %i\n",sGyroRawData.x);
-								printf("Y: %i\n",sGyroRawData.y);
-								printf("Z: %i\n\n",sGyroRawData.z);
-								response.dataLength = 3;
-								response.data[0] = sGyroRawData.x;
-								response.data[1] = sGyroRawData.y;
-								response.data[2] = sGyroRawData.z;
+								printf("X: %i\n",tGyroRawData.x);
+								printf("Y: %i\n",tGyroRawData.y);
+								printf("Z: %i\n\n",tGyroRawData.z);
+								tResponse.dataLength = 3;
+								tResponse.data[0] = tGyroRawData.x;
+								tResponse.data[1] = tGyroRawData.y;
+								tResponse.data[2] = tGyroRawData.z;
 
 							}break;
 						}
 
 					}break;
-					case todos:
+					case TODOS:
 					{
-						response.Sensor = todos;
+						tResponse.Sensor = TODOS;
 						printf("Leyendo datos de todos los sensores...\n");
-						ReadAccelMagnData(&sAccRawData, &sMagRawData);
-						ReadGyroData(&sGyroRawData);
-						switch(command.Eje)
+						ReadAccelMagnData(&tAccRawData, &tMagRawData);
+						ReadGyroData(&tGyroRawData);
+						switch(tCommand.Eje)
 						{
-							case eje_x:
+							case EJE_X:
 							{
 								printf("Leyendo Eje x de todos los sensores...\n");
-								printf("Acc X: %i\n",sAccRawData.x);
-								printf("Mag X: %i\n",sMagRawData.x);
-								printf("Gyr X: %i\n",sGyroRawData.x);
-								response.dataLength = 3;
-								response.data[0] = sAccRawData.x;
-								response.data[1] = sMagRawData.x;
-								response.data[2] = sGyroRawData.x;
+								printf("Acc X: %i\n",tAccRawData.x);
+								printf("Mag X: %i\n",tMagRawData.x);
+								printf("Gyr X: %i\n",tGyroRawData.x);
+								tResponse.dataLength = 3;
+								tResponse.data[0] = tAccRawData.x;
+								tResponse.data[1] = tMagRawData.x;
+								tResponse.data[2] = tGyroRawData.x;
 
 
 							}break;
-							case eje_y:
+							case EJE_Y:
 							{
 								printf("Leyendo Eje y de todos los sensores...\n");
-								printf("Acc Y: %i\n",sAccRawData.y);
-								printf("Mag Y: %i\n",sMagRawData.y);
-								printf("Gyr Y: %i\n",sGyroRawData.y);
-								response.dataLength = 3;
-								response.data[0] = sAccRawData.y;
-								response.data[1] = sMagRawData.y;
-								response.data[2] = sGyroRawData.y;
+								printf("Acc Y: %i\n",tAccRawData.y);
+								printf("Mag Y: %i\n",tMagRawData.y);
+								printf("Gyr Y: %i\n",tGyroRawData.y);
+								tResponse.dataLength = 3;
+								tResponse.data[0] = tAccRawData.y;
+								tResponse.data[1] = tMagRawData.y;
+								tResponse.data[2] = tGyroRawData.y;
 
 
 							}break;
-							case eje_z:
+							case EJE_Z:
 							{
 								printf("Leyendo Eje z de todos los sensores...\n");
-								printf("Acc Z: %i\n",sAccRawData.z);
-								printf("Mag Z: %i\n",sMagRawData.z);
-								printf("Gyr Z: %i\n",sGyroRawData.z);
-								response.dataLength = 3;
-								response.data[0] = sAccRawData.z;
-								response.data[1] = sMagRawData.z;
-								response.data[2] = sGyroRawData.z;
+								printf("Acc Z: %i\n",tAccRawData.z);
+								printf("Mag Z: %i\n",tMagRawData.z);
+								printf("Gyr Z: %i\n",tGyroRawData.z);
+								tResponse.dataLength = 3;
+								tResponse.data[0] = tAccRawData.z;
+								tResponse.data[1] = tMagRawData.z;
+								tResponse.data[2] = tGyroRawData.z;
 
 
 							}break;
-							case eje_xyz:
+							case EJE_XYZ:
 							{
 								printf("Leyendo Eje x, y, z de todos los sensores...\n");
-								printf("Acc X: %i\n",sAccRawData.x);
-								printf("Acc Y: %i\n",sAccRawData.y);
-								printf("Acc Z: %i\n\n",sAccRawData.z);
-								response.dataLength = 9;
-								response.data[0] = sAccRawData.x;
-								response.data[1] = sAccRawData.y;
-								response.data[2] = sAccRawData.z;
+								printf("Acc X: %i\n",tAccRawData.x);
+								printf("Acc Y: %i\n",tAccRawData.y);
+								printf("Acc Z: %i\n\n",tAccRawData.z);
+								tResponse.dataLength = 9;
+								tResponse.data[0] = tAccRawData.x;
+								tResponse.data[1] = tAccRawData.y;
+								tResponse.data[2] = tAccRawData.z;
 
-								printf("Mag X: %i\n",sMagRawData.x);
-								printf("Mag Y: %i\n",sMagRawData.y);
-								printf("Mag Z: %i\n\n",sMagRawData.z);
-								response.data[3] = sMagRawData.x;
-								response.data[4] = sMagRawData.y;
-								response.data[5] = sMagRawData.z;
+								printf("Mag X: %i\n",tMagRawData.x);
+								printf("Mag Y: %i\n",tMagRawData.y);
+								printf("Mag Z: %i\n\n",tMagRawData.z);
+								tResponse.data[3] = tMagRawData.x;
+								tResponse.data[4] = tMagRawData.y;
+								tResponse.data[5] = tMagRawData.z;
 
-								printf("Gyr X: %i\n",sGyroRawData.x);
-								printf("Gyr Y: %i\n",sGyroRawData.y);
-								printf("Gyr Z: %i\n\n",sGyroRawData.z);
-								response.data[6] = sGyroRawData.x;
-								response.data[7] = sGyroRawData.y;
-								response.data[8] = sGyroRawData.z;
+								printf("Gyr X: %i\n",tGyroRawData.x);
+								printf("Gyr Y: %i\n",tGyroRawData.y);
+								printf("Gyr Z: %i\n\n",tGyroRawData.z);
+								tResponse.data[6] = tGyroRawData.x;
+								tResponse.data[7] = tGyroRawData.y;
+								tResponse.data[8] = tGyroRawData.z;
 
 							}break;
 						}
@@ -424,39 +425,39 @@ static void *vfClientThread(void* vpArgs)
 					}break;
 				}
 
-				/*Calculando checksum*/
+				/*Calculando Checksum*/
 
-				int cs =	(int)response.SOF + (int)response.Sensor + (int)response.dataLength + (int)response.data[0] + (int)response.data[1] + (int)response.data[2] + (int)response.data[3] + (int)response.data[4] + (int)response.data[5] + (int)response.data[6] + (int)response.data[7] + (int)response.data[8];
-				response.CS = (unsigned char) cs;
+				int cs =	(int)tResponse.SOF + (int)tResponse.Sensor + (int)tResponse.dataLength + (int)tResponse.data[0] + (int)tResponse.data[1] + (int)tResponse.data[2] + (int)tResponse.data[3] + (int)tResponse.data[4] + (int)tResponse.data[5] + (int)tResponse.data[6] + (int)tResponse.data[7] + (int)tResponse.data[8];
+				tResponse.CS = (unsigned char) cs;
 
-				printf("El tamaño es de %i\n", sizeof(response));
-				printf("SOF:    	int val: %i  hex val: %#2x 	size: %i \n", response.SOF, response.SOF, sizeof(response.SOF));
-				printf("Sensor: 	int val: %i  hex val: %#2x 	size: %i \n", response.Sensor, response.Sensor, sizeof(response.Sensor));
-				printf("dataLength:	int val: %i  hex val: %#2x 	size: %i \n", response.dataLength, response.dataLength, sizeof(response.dataLength));
-				printf("data[0]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[0], response.data[0], sizeof(response.data[0]));
-				printf("data[1]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[1], response.data[1], sizeof(response.data[1]));
-				printf("data[2]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[2], response.data[2], sizeof(response.data[2]));
-				printf("data[3]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[3], response.data[3], sizeof(response.data[3]));
-				printf("data[4]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[4], response.data[4], sizeof(response.data[4]));
-				printf("data[5]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[5], response.data[5], sizeof(response.data[5]));
-				printf("data[6]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[6], response.data[6], sizeof(response.data[6]));
-				printf("data[7]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[7], response.data[7], sizeof(response.data[7]));
-				printf("data[8]: 	int val: %i  hex val: %#2x 	size: %i \n", response.data[8], response.data[8], sizeof(response.data[8]));
-				printf("CS: 		int val: %i  hex val: %#2x 	size: %i \n", response.CS, response.CS, sizeof(response.CS));
+				printf("El tamaño es de %i\n", sizeof(tResponse));
+				printf("SOF:    	int val: %i  hex val: %#2x 	size: %i \n", tResponse.SOF, tResponse.SOF, sizeof(tResponse.SOF));
+				printf("Sensor: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.Sensor, tResponse.Sensor, sizeof(tResponse.Sensor));
+				printf("dataLength:	int val: %i  hex val: %#2x 	size: %i \n", tResponse.dataLength, tResponse.dataLength, sizeof(tResponse.dataLength));
+				printf("data[0]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[0], tResponse.data[0], sizeof(tResponse.data[0]));
+				printf("data[1]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[1], tResponse.data[1], sizeof(tResponse.data[1]));
+				printf("data[2]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[2], tResponse.data[2], sizeof(tResponse.data[2]));
+				printf("data[3]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[3], tResponse.data[3], sizeof(tResponse.data[3]));
+				printf("data[4]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[4], tResponse.data[4], sizeof(tResponse.data[4]));
+				printf("data[5]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[5], tResponse.data[5], sizeof(tResponse.data[5]));
+				printf("data[6]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[6], tResponse.data[6], sizeof(tResponse.data[6]));
+				printf("data[7]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[7], tResponse.data[7], sizeof(tResponse.data[7]));
+				printf("data[8]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[8], tResponse.data[8], sizeof(tResponse.data[8]));
+				printf("CS: 		int val: %i  hex val: %#2x 	size: %i \n", tResponse.CS, tResponse.CS, sizeof(tResponse.CS));
 
 				
 			}
 			else
 			{
 
-				response.Sensor = error;
-				response.dataLength = 0;
-				response.CS 		= 255;
-				printf("Error en el mensaje checksum fail...\n\n");
+				tResponse.Sensor = ERROR;
+				tResponse.dataLength = 0;
+				tResponse.CS 		= 255;
+				printf("Error en el mensaje ucChecksum fail...\n\n");
 			}
 			
 			/*Response to client*/
-			if(write(socket, &response, sizeof(response)) <= 0)
+			if(write(iSocket, &tResponse, sizeof(tResponse)) <= 0)
 			{
 				printf("Error al enviar mensaje\n");
 			}
@@ -468,11 +469,11 @@ static void *vfClientThread(void* vpArgs)
 
 	}
 	/*Cerrando Socket*/
-	close(socket);
-	printf("Socket #%i Cerrado\n", socket);
+	close(iSocket);
+	printf("Socket #%i Cerrado\n", iSocket);
 	/*Liberando memeria al pool comun*/
-	free(buffer);
+	free(cpBuffer);
 	/*borrar asignacion de addr del puntero*/
-	buffer = NULL;
+	cpBuffer = NULL;
 	pthread_exit(NULL);
 }

@@ -25,11 +25,12 @@ if [ $contra -eq 1 ] ; then
     echo "Introduce Password: "
     read pass
 
+    output=$(nmcli device wifi connect "$SSID" password "$pass" iface wlan0 --timeout 10)
 else
     $key_mgmt = NONE
+    output=$(nmcli device wifi connect "$SSID" iface wlan0 --timeout 10)
 fi
 
-output=$(nmcli device wifi connect "$SSID" password "$pass" iface wlan0 --timeout 10)
 wget -q --tries=5 --timeout=5 --spider http://google.com &> /dev/null # Is connected to Internet?
 if [[ $? -eq 0 ]]; then
         echo "conectado a Internet tu ip: "; hostname -I; # Is connected to Internet

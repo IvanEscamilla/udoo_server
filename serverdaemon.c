@@ -432,19 +432,19 @@ static void *vfnClientThread(void* vpArgs)
 				tResponse.CS = (uint8_t) dwCs;
 
 				printf("El tamaño es de %i\n", sizeof(tResponse));
-				printf("SOF:    	int val: %i 	hex val: %#2x 		size: %i \n",  tResponse.SOF, (uint8_t)tResponse.SOF, sizeof(tResponse.SOF));
-				printf("Sensor: 	int val: %i 	hex val: %#2x 		size: %i \n",  tResponse.Sensor, (uint8_t)tResponse.Sensor, sizeof(tResponse.Sensor));
-				printf("dataLength:	int val: %i 	hex val: %#2x 		size: %i \n",  tResponse.dataLength, (uint8_t)tResponse.dataLength, sizeof(tResponse.dataLength));
-				printf("CS: 		int val: %i 	hex val: %#2x 		size: %i \n",  tResponse.CS, (uint8_t)tResponse.CS, sizeof(tResponse.CS));
-				printf("data[0]: 	int val: %i 	hex val: %#hx 		size: %i \n",  tResponse.data[0], (int16_t)tResponse.data[0], sizeof(tResponse.data[0]));
-				printf("data[1]: 	int val: %i 	hex val: %#hx 		size: %i \n",  tResponse.data[1], (int16_t)tResponse.data[1], sizeof(tResponse.data[1]));
-				printf("data[2]: 	int val: %i 	hex val: %#hx 		size: %i \n",  tResponse.data[2], (int16_t)tResponse.data[2], sizeof(tResponse.data[2]));
-				printf("data[3]: 	int val: %i 	hex val: %#hx 		size: %i \n",  tResponse.data[3], (int16_t)tResponse.data[3], sizeof(tResponse.data[3]));
-				printf("data[4]: 	int val: %i 	hex val: %#hx 		size: %i \n",  tResponse.data[4], (int16_t)tResponse.data[4], sizeof(tResponse.data[4]));
-				printf("data[5]: 	int val: %i 	hex val: %#hx 		size: %i \n",  tResponse.data[5], (int16_t)tResponse.data[5], sizeof(tResponse.data[5]));
-				printf("data[6]: 	int val: %i 	hex val: %#hx 		size: %i \n",  tResponse.data[6], (int16_t)tResponse.data[6], sizeof(tResponse.data[6]));
-				printf("data[7]: 	int val: %i 	hex val: %#hx 		size: %i \n",  tResponse.data[7], (int16_t)tResponse.data[7], sizeof(tResponse.data[7]));
-				printf("data[8]: 	int val: %i 	hex val: %#hx 		size: %i \n",  tResponse.data[8], (int16_t)tResponse.data[8], sizeof(tResponse.data[8]));
+				printf("SOF:    	int val: %i 	hex val: %#2x		size: %i \n",  tResponse.SOF, (uint8_t)tResponse.SOF, sizeof(tResponse.SOF));
+				printf("Sensor: 	int val: %i 	hex val: %#2x		size: %i \n",  tResponse.Sensor, (uint8_t)tResponse.Sensor, sizeof(tResponse.Sensor));
+				printf("dataLength:	int val: %i 	hex val: %#2x		size: %i \n",  tResponse.dataLength, (uint8_t)tResponse.dataLength, sizeof(tResponse.dataLength));
+				printf("CS: 		int val: %i 	hex val: %#2x		size: %i \n",  tResponse.CS, (uint8_t)tResponse.CS, sizeof(tResponse.CS));
+				printf("data[0]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[0], (int16_t)tResponse.data[0], sizeof(tResponse.data[0]));
+				printf("data[1]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[1], (int16_t)tResponse.data[1], sizeof(tResponse.data[1]));
+				printf("data[2]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[2], (int16_t)tResponse.data[2], sizeof(tResponse.data[2]));
+				printf("data[3]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[3], (int16_t)tResponse.data[3], sizeof(tResponse.data[3]));
+				printf("data[4]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[4], (int16_t)tResponse.data[4], sizeof(tResponse.data[4]));
+				printf("data[5]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[5], (int16_t)tResponse.data[5], sizeof(tResponse.data[5]));
+				printf("data[6]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[6], (int16_t)tResponse.data[6], sizeof(tResponse.data[6]));
+				printf("data[7]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[7], (int16_t)tResponse.data[7], sizeof(tResponse.data[7]));
+				printf("data[8]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[8], (int16_t)tResponse.data[8], sizeof(tResponse.data[8]));
 
 				
 			}

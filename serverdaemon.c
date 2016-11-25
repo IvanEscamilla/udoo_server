@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     int32_t dwClient;
 	
 	/*Configurando Magnetometro y Acelerometro*/	
-	if(FXOS8700CQ_Init() < 0)
+	if(dwfnFXOS8700CQInit() < 0)
 	{
 		printf("\n Inicialización Acelerometro y Magnetometro fallida!\n");
         exit(EXIT_FAILURE);	
@@ -210,7 +210,7 @@ static void *vfnClientThread(void* vpArgs)
 					{
 						tResponse.Sensor = ACELEROMETRO;
 						printf("Leyendo datos del Acelerometro...\n");
-						ReadAccelMagnData(&tAccRawData, &tMagRawData);
+						dwfnReadAccelMagnData(&tAccRawData, &tMagRawData);
 						switch(tCommand.Eje)
 						{
 							case EJE_X:
@@ -256,7 +256,7 @@ static void *vfnClientThread(void* vpArgs)
 					{
 						tResponse.Sensor = MAGNETOMETRO;
 						printf("Leyendo datos del magnetometro...\n");
-						ReadAccelMagnData(&tAccRawData, &tMagRawData);
+						dwfnReadAccelMagnData(&tAccRawData, &tMagRawData);
 						switch(tCommand.Eje)
 						{
 							case EJE_X:
@@ -352,7 +352,7 @@ static void *vfnClientThread(void* vpArgs)
 					{
 						tResponse.Sensor = TODOS;
 						printf("Leyendo datos de todos los sensores...\n");
-						ReadAccelMagnData(&tAccRawData, &tMagRawData);
+						dwfnReadAccelMagnData(&tAccRawData, &tMagRawData);
 						dwfnReadGyroData(&tGyroRawData);
 						switch(tCommand.Eje)
 						{

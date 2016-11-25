@@ -44,20 +44,20 @@
 #define FXOS8700CQ_ACC_READ_LEN 		6 // plus 6 channels = 6 bytes
 #define FXOS8700CQ_MAG_READ_LEN 		6 // plus 6 channels = 6 bytes
 
-int accFd;
-char *buffer;
+int32_t gdwAccFd;
+char 	*gbpBuffer;
 
 /*
 	function configures FXOS8700CQ combination accelerometer and 
 	magnetometer sensor 
 */
 
-int FXOS8700CQ_Init()
+int32_t dwfnFXOS8700CQInit()
 {
-	char *modulePath = "/dev/i2c-3";
-	uint8_t databyte[2];
+	char *bpModulePath = "/dev/i2c-3";
+	uint8_t bDatabyte[2];
 
-	if ((accFd = open(modulePath, O_RDWR)) < 0) 
+	if ((gdwAccFd = open(bpModulePath, O_RDWR)) < 0) 
 	{
 		/* ERROR HANDLING: you can check errno to see what went wrong */
 		perror("Failed to open the i2c bus");
@@ -65,10 +65,10 @@ int FXOS8700CQ_Init()
 	}
 
 	// open comunication to FXOS8700CQ
-	if (ioctl(accFd, I2C_SLAVE_FORCE, FXOS8700CQ_SLAVE_ADDR) < 0)
+	if (ioctl(gdwAccFd, I2C_SLAVE_FORCE, FXOS8700CQ_SLAVE_ADDR) < 0)
 	{
-		buffer = strerror(errno);
-        printf("%s\n\n", buffer);
+		gbpBuffer = strerror(errno);
+        printf("%s\n\n", gbpBuffer);
 		perror("Failed to open comunication to FXOS8700CQ");
 		return (I2C_ERROR);
 	}
@@ -77,13 +77,13 @@ int FXOS8700CQ_Init()
 	// standby
 	// [7-1] = 0000 000
 	// [0]: active=0
-	databyte[0]	= FXOS8700CQ_CTRL_REG1;
-	databyte[1] = 0x00;
+	bDatabyte[0]	= FXOS8700CQ_CTRL_REG1;
+	bDatabyte[1] = 0x00;
 
-	if(write( accFd, &databyte, 2) <= 0)
+	if(write( gdwAccFd, &bDatabyte, 2) <= 0)
 	{
-		buffer = strerror(errno);
-        printf("%s\n\n", buffer);
+		gbpBuffer = strerror(errno);
+        printf("%s\n\n", gbpBuffer);
 		perror("Failed to write to accelerometer control register 1 to place FXOS8700CQ into standby");
 		return (I2C_ERROR);
 	}
@@ -94,12 +94,12 @@ int FXOS8700CQ_Init()
 	// [5]: m_ost=0: no one-shot magnetic measurement
 	// [4-2]: m_os=111=7: 8x oversampling (for 200Hz) to reduce magnetometer noise
 	// [1-0]: m_hms=11=3: select hybrid mode with accel and magnetometer active
-	databyte[0]	= FXOS8700CQ_M_CTRL_REG1;
-	databyte[1] = 0x1F;
-	if(write( accFd, &databyte, 2) <= 0)
+	bDatabyte[0]	= FXOS8700CQ_M_CTRL_REG1;
+	bDatabyte[1] = 0x1F;
+	if(write( gdwAccFd, &bDatabyte, 2) <= 0)
 	{
-		buffer =  strerror(errno);
-        printf("%s\n\n", buffer);
+		gbpBuffer =  strerror(errno);
+        printf("%s\n\n", gbpBuffer);
 		perror("Failed to write to magnetometer control register 1");
 		return (I2C_ERROR);
 	}
@@ -111,12 +111,12 @@ int FXOS8700CQ_Init()
 	// [3]: m_maxmin_dis_ths=0
 	// [2]: m_maxmin_rst=0
 	// [1-0]: m_rst_cnt=00 to enable magnetic reset each cycle
-	databyte[0]	= FXOS8700CQ_M_CTRL_REG2;
-	databyte[1] = 0x20;
-	if(write( accFd, &databyte, 2) <= 0)
+	bDatabyte[0]	= FXOS8700CQ_M_CTRL_REG2;
+	bDatabyte[1] = 0x20;
+	if(write( gdwAccFd, &bDatabyte, 2) <= 0)
 	{
-		buffer =  strerror(errno);
-        printf("%s\n\n", buffer);
+		gbpBuffer =  strerror(errno);
+        printf("%s\n\n", gbpBuffer);
 		perror("Failed to write to magnetometer control register 2");
 		return (I2C_ERROR);
 	}
@@ -129,12 +129,12 @@ int FXOS8700CQ_Init()
 	// [3]: reserved
 	// [2]: reserved
 	// [1-0]: fs=01 for accelerometer range of +/-4g range with 0.488mg/LSB
-	databyte[0]	= FXOS8700CQ_XYZ_DATA_CFG;
-	databyte[1] = 0x01;
-	if(write( accFd, &databyte, 2) <= 0)
+	bDatabyte[0]	= FXOS8700CQ_XYZ_DATA_CFG;
+	bDatabyte[1] = 0x01;
+	if(write( gdwAccFd, &bDatabyte, 2) <= 0)
 	{
-		buffer =  strerror(errno);
-        printf("%s\n\n", buffer);
+		gbpBuffer =  strerror(errno);
+        printf("%s\n\n", gbpBuffer);
 		perror("Failed to write 0x01 to XYZ_DATA_CFG register to get accelerometer range of +/-4g");
 		return (I2C_ERROR);
 	}
@@ -145,12 +145,12 @@ int FXOS8700CQ_Init()
 	// [2]: lnoise=1 for low noise mode
 	// [1]: f_read=0 for normal 16 bit reads
 	// [0]: active=1 to take the part out of standby and enable sampling
-	databyte[0]	= FXOS8700CQ_CTRL_REG1;
-	databyte[1] = 0x0D;
-	if(write( accFd, &databyte, 2) <= 0)
+	bDatabyte[0]	= FXOS8700CQ_CTRL_REG1;
+	bDatabyte[1] = 0x0D;
+	if(write( gdwAccFd, &bDatabyte, 2) <= 0)
 	{
-		buffer =  strerror(errno);
-        printf("%s\n\n", buffer);
+		gbpBuffer =  strerror(errno);
+        printf("%s\n\n", gbpBuffer);
 		perror("Failed to write 0x0D to accelerometer control register 1 to take the part out of standby and enable sampling");
 		return (I2C_ERROR);
 	}
@@ -160,29 +160,29 @@ int FXOS8700CQ_Init()
 
 // read status and the three channels of accelerometer and magnetometer data from
 // FXOS8700CQ (13 bytes)
-int ReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
+int32_t dwfnReadAccelMagnData(SRAWDATA *pAccelData, SRAWDATA *pMagnData)
 {
-	uint8_t Buffer[FXOS8700CQ_FULL_READ_LEN];
+	uint8_t bBuffer[FXOS8700CQ_FULL_READ_LEN];
 	
 	// read FXOS8700CQ_FULL_READ_LEN = 13 bytes (status byte and the six channels of data)
-	if (read( accFd, Buffer, FXOS8700CQ_FULL_READ_LEN) != FXOS8700CQ_FULL_READ_LEN) 
+	if (read( gdwAccFd, bBuffer, FXOS8700CQ_FULL_READ_LEN) != FXOS8700CQ_FULL_READ_LEN) 
 	{
-        buffer =  strerror(errno);
-        printf("%s\n\n", buffer);
+        gbpBuffer =  strerror(errno);
+        printf("%s\n\n", gbpBuffer);
 		return I2C_ERROR;
     } 
 	else
 	{
 
 		// copy the 14 bit accelerometer byte data into 16 bit words
-		pAccelData->x = (int16_t)(((Buffer[FXOS8700CQ_X_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_X_LSB_ACC_REGISTER]));
-		pAccelData->y = (int16_t)(((Buffer[FXOS8700CQ_Y_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Y_LSB_ACC_REGISTER]));
-		pAccelData->z = (int16_t)(((Buffer[FXOS8700CQ_Z_MSB_ACC_REGISTER] << 8) | Buffer[FXOS8700CQ_Z_LSB_ACC_REGISTER]));
+		pAccelData->x = (int16_t)(((bBuffer[FXOS8700CQ_X_MSB_ACC_REGISTER] << 8) | bBuffer[FXOS8700CQ_X_LSB_ACC_REGISTER]));
+		pAccelData->y = (int16_t)(((bBuffer[FXOS8700CQ_Y_MSB_ACC_REGISTER] << 8) | bBuffer[FXOS8700CQ_Y_LSB_ACC_REGISTER]));
+		pAccelData->z = (int16_t)(((bBuffer[FXOS8700CQ_Z_MSB_ACC_REGISTER] << 8) | bBuffer[FXOS8700CQ_Z_LSB_ACC_REGISTER]));
 
 		// copy the magnetometer byte data into 16 bit words
-		pMagnData->x = (Buffer[FXOS8700CQ_X_MSB_MAG_REGISTER] << 8) | Buffer[FXOS8700CQ_X_LSB_MAG_REGISTER];
-		pMagnData->y = (Buffer[FXOS8700CQ_Y_MSB_MAG_REGISTER] << 8) | Buffer[FXOS8700CQ_Y_LSB_MAG_REGISTER];
-		pMagnData->z = (Buffer[FXOS8700CQ_Z_MSB_MAG_REGISTER] << 8) | Buffer[FXOS8700CQ_Z_LSB_MAG_REGISTER];
+		pMagnData->x = (bBuffer[FXOS8700CQ_X_MSB_MAG_REGISTER] << 8) | bBuffer[FXOS8700CQ_X_LSB_MAG_REGISTER];
+		pMagnData->y = (bBuffer[FXOS8700CQ_Y_MSB_MAG_REGISTER] << 8) | bBuffer[FXOS8700CQ_Y_LSB_MAG_REGISTER];
+		pMagnData->z = (bBuffer[FXOS8700CQ_Z_MSB_MAG_REGISTER] << 8) | bBuffer[FXOS8700CQ_Z_LSB_MAG_REGISTER];
 
 	}
 

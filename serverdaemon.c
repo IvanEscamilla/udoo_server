@@ -175,8 +175,8 @@ static void *vfnClientThread(void* vpArgs)
 			pthread_mutex_lock(&lock);
 			
 			unsigned char ucChecksum;
-			tclientCommand tCommand;
-			tresponseCommand tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
+			tClientCommand tCommand;
+			tResponseCommand tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
 			SRAWDATA tAccRawData;
 			SRAWDATA tMagRawData;
 			SGYRORAWDATA tGyroRawData;

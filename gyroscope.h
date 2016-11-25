@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include "sensorstype.h"
 
 #define I2C_ERROR	-1
 #define I2C_OK		 1

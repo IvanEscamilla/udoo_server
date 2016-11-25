@@ -186,10 +186,10 @@ static void *vfnClientThread(void* vpArgs)
 			tResponse.SOF = 0xaa;
 			
 			/*Imprime comando recivido del cliente*/
-			printf("SOF:   \"%#2x\"\n",bpBuffer[0]);
-			printf("Sensor:\"%#2x\"\n",bpBuffer[1]);
-			printf("Eje:   \"%#2x\"\n",bpBuffer[2]);
-			printf("CS:    \"%#2x\"\n\n",bpBuffer[3]);
+			printf("SOF:   \"%#2x\"\n",(uint8_t)bpBuffer[0]);
+			printf("Sensor:\"%#2x\"\n",(uint8_t)bpBuffer[1]);
+			printf("Eje:   \"%#2x\"\n",(uint8_t)bpBuffer[2]);
+			printf("CS:    \"%#2x\"\n\n",(uint8_t)bpBuffer[3]);
 			
 			/*Almacenando valores*/
 			tCommand.SOF = (uint8_t)bpBuffer[0];
@@ -445,6 +445,7 @@ static void *vfnClientThread(void* vpArgs)
 				printf("data[7]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[7], tResponse.data[7], sizeof(tResponse.data[7]));
 				printf("data[8]: 	int val: %i  hex val: %#2x 	size: %i \n", tResponse.data[8], tResponse.data[8], sizeof(tResponse.data[8]));
 				printf("CS: 		int val: %i  hex val: %#2x 	size: %i \n", tResponse.CS, tResponse.CS, sizeof(tResponse.CS));
+				printf("Respuesta:  %#x 		 size: %i \n", tResponse, sizeof(tResponse));
 
 				
 			}

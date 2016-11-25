@@ -11,7 +11,6 @@
 #include <string.h>
 #include "accelerometer.h"
 #include "gyroscope.h"
-#include "sensorstype.h"
 
 #define LISTEN_BACKLOG 50 //limitando a 50 conexiones en background
 #define MAXLENGHT  100 //100 bytes Max por trama
@@ -47,6 +46,13 @@ typedef struct tResponse {
    uint8_t  CS;
    int16_t data[9];
 } SRESPONSECOMMAND;
+
+typedef struct
+{
+	int16_t x;
+	int16_t y;
+	int16_t z;
+} SRAWDATA;
 
 pthread_t gpThreadId;
 pthread_mutex_t gpLock;

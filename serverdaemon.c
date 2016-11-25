@@ -28,15 +28,15 @@
 #define EJE_XYZ 	  0x04
 
 
-typedef int32_t bool;
+typedef int8_t bool;
 #define TRUE 			1
 #define FALSE 			0
 
 typedef struct tClient {
-   int32_t  SOF;
-   int32_t  Sensor;
-   int32_t  Eje;
-   int32_t  CS;
+   uint8_t  SOF;
+   uint8_t  Sensor;
+   uint8_t  Eje;
+   uint8_t  CS;
 } tClientCommand;
 
 typedef struct tResponse {
@@ -44,22 +44,22 @@ typedef struct tResponse {
    uint8_t  Sensor;
    uint8_t  dataLength;
    uint8_t  CS;
-   short data[9];
+   int16_t data[9];
 } tResponseCommand;
 
-pthread_t pThreadId;
-pthread_mutex_t lock;
+pthread_t gpThreadId;
+pthread_mutex_t gpLock;
 
 static void  *vfnClientThread(void* vpArgs);
 
 int main(int argc, char *argv[])
 {
 	/*Se obtiene el puerto al que escuchará el servidor pasado por parametro*/
-    int32_t iPuerto = atoi(argv[1]);
-    int32_t iSocketFd;
-    int32_t iBindFd;
-    int32_t iListenFd;
-    int32_t iClient;
+    int32_t dwPuerto = atoi(argv[1]);
+    int32_t dwSocketFd;
+    int32_t dwBindFd;
+    int32_t dwListenFd;
+    int32_t dwClient;
 	
 	/*Configurando Magnetometro y Acelerometro*/	
 	if(FXOS8700CQ_Init() < 0)
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 	}
 
 
-	if (pthread_mutex_init(&lock, NULL) != 0)
+	if (pthread_mutex_init(&gpLock, NULL) != 0)
 	{
 		printf("\n Inicialización mutex fallida!\n");
         exit(EXIT_FAILURE);
@@ -85,12 +85,12 @@ int main(int argc, char *argv[])
     struct sockaddr_in socketOptions;
     socklen_t addrlen;
 
-    printf("Abriendo Puerto = %i\n\n",iPuerto);
+    printf("Abriendo Puerto = %i\n\n",dwPuerto);
 	
 	/*Creando un socket de tipo SOCK_STREAM e IPv4 fd guardado en la var */
-    iSocketFd = socket(AF_INET, SOCK_STREAM, 0);
+    dwSocketFd = socket(AF_INET, SOCK_STREAM, 0);
 
-    if (iSocketFd < 0)
+    if (dwSocketFd < 0)
     {
        printf("Error en el socket \n");
        exit(EXIT_FAILURE);
@@ -99,14 +99,14 @@ int main(int argc, char *argv[])
 	printf("Socket Creado!\n");
 	/*Configurnado Socket*/
     socketOptions.sin_family = AF_INET; //Familia AF_INET
-    socketOptions.sin_port = htons(iPuerto); // Numero de puerto
+    socketOptions.sin_port = htons(dwPuerto); // Numero de puerto
     socketOptions.sin_addr.s_addr = htons(INADDR_ANY); // direccion socket, escuchando en todas las interfases
 	
 	/*Nombrando al socket*/
-    iBindFd = bind(iSocketFd,(struct sockaddr *)&socketOptions, sizeof(struct sockaddr_in));
+    dwBindFd = bind(dwSocketFd,(struct sockaddr *)&socketOptions, sizeof(struct sockaddr_in));
 	printf("Ruta del socket: %i \n\n",socketOptions.sin_addr.s_addr);
     
-	if (iBindFd < 0)
+	if (dwBindFd < 0)
     {
        printf("Error del bind \n");
        exit(EXIT_FAILURE);
@@ -114,9 +114,9 @@ int main(int argc, char *argv[])
 	
 	printf("Socket Asignado!\n");
    	/*Escucar conexiones en el socket*/
-    iListenFd = listen(iSocketFd, LISTEN_BACKLOG);
+    dwListenFd = listen(dwSocketFd, LISTEN_BACKLOG);
 
-    if(iListenFd < 0)
+    if(dwListenFd < 0)
     {
        printf("Error en el listen \n");
        exit(EXIT_FAILURE);
@@ -129,15 +129,15 @@ int main(int argc, char *argv[])
     {
 		/*En espera de un Cliente*/
 		printf("Esperando cliente...\n");    
-     	iClient = accept(iSocketFd,(struct sockaddr *)&socketOptions,&addrlen);
+     	dwClient = accept(dwSocketFd,(struct sockaddr *)&socketOptions,&addrlen);
 		printf("cliente coonectado creando hilo de conexión...\n");
 		/*Creando Hilo vfnClientThread mandandole por parametro el socket del Cliente para recibir los mensajes del usuario conectado*/
-     	pthread_create(&pThreadId,NULL,&vfnClientThread,(void *)&iClient);
-     	printf("socket numero: %i creado satisfactoriamente, ejecutando Hilo...\n",iClient);
+     	pthread_create(&gpThreadId,NULL,&vfnClientThread,(void *)&dwClient);
+     	printf("socket numero: %i creado satisfactoriamente, ejecutando Hilo...\n",dwClient);
     }  
    	
-	pthread_mutex_destroy(&lock);
-	close(iClient); 
+	pthread_mutex_destroy(&gpLock);
+	close(dwClient); 
 }
 
 static void *vfnClientThread(void* vpArgs)
@@ -145,15 +145,15 @@ static void *vfnClientThread(void* vpArgs)
 	/*Variable control de vida del thread*/
 	bool bCloseSocket = FALSE;
 	/*Variable length del mensaje recibido*/
-  	int32_t iMsgLenght;
+  	int32_t dwMsgLenght;
 	/*Buffer*/
-  	int8_t *cpBuffer;
+  	int8_t *bpBuffer;
 	/*Obtener socket del cliente*/
-  	int32_t iSocket = *((int32_t *)vpArgs);
+  	int32_t dwSocket = *((int32_t *)vpArgs);
 	/*reservando espacio de memoria para el buffer*/
- 	cpBuffer = (int8_t *)malloc(MAXLENGHT);
+ 	bpBuffer = (int8_t *)malloc(MAXLENGHT);
 
-  	if (cpBuffer==NULL)
+  	if (bpBuffer==NULL)
 	{
 		printf("No se pudo reservar memoria para el buffer termianando hilo...\n\n");
 		pthread_exit(NULL);	
@@ -162,20 +162,20 @@ static void *vfnClientThread(void* vpArgs)
 	while(bCloseSocket == FALSE)
 	{
 		/*Limpia Buffer*/
-		memset(cpBuffer,'\0',MAXLENGHT);
+		memset(bpBuffer,'\0',MAXLENGHT);
 		/*Esperando algun mensaje*/
 		printf("Esperando mensaje del cliente...\n");
-		iMsgLenght = recv(iSocket, cpBuffer, MAXLENGHT,0);
+		dwMsgLenght = recv(dwSocket, bpBuffer, MAXLENGHT,0);
 		/*nterrupted by a signal or Error ocurred*/
-		if(iMsgLenght <= 0) 
+		if(dwMsgLenght <= 0) 
 		{
 			bCloseSocket = TRUE;
 		}
 		else
 		{  
-			pthread_mutex_lock(&lock);
+			pthread_mutex_lock(&gpLock);
 			
-			uint8_t ucChecksum;
+			uint8_t bChecksum;
 			tClientCommand tCommand;
 			tResponseCommand tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
 			SRAWDATA tAccRawData;
@@ -186,22 +186,22 @@ static void *vfnClientThread(void* vpArgs)
 			tResponse.SOF = 0xaa;
 			
 			/*Imprime comando recivido del cliente*/
-			printf("SOF:   \"%#2x\"\n",cpBuffer[0]);
-			printf("Sensor:\"%#2x\"\n",cpBuffer[1]);
-			printf("Eje:   \"%#2x\"\n",cpBuffer[2]);
-			printf("CS:    \"%#2x\"\n\n",cpBuffer[3]);
+			printf("SOF:   \"%#2x\"\n",bpBuffer[0]);
+			printf("Sensor:\"%#2x\"\n",bpBuffer[1]);
+			printf("Eje:   \"%#2x\"\n",bpBuffer[2]);
+			printf("CS:    \"%#2x\"\n\n",bpBuffer[3]);
 			
 			/*Almacenando valores*/
-			tCommand.SOF = (int)cpBuffer[0];
-			tCommand.Sensor = (int)cpBuffer[1];
-			tCommand.Eje = (int)cpBuffer[2];
-			tCommand.CS = (int)cpBuffer[3];
+			tCommand.SOF = (int)bpBuffer[0];
+			tCommand.Sensor = (int)bpBuffer[1];
+			tCommand.Eje = (int)bpBuffer[2];
+			tCommand.CS = (int)bpBuffer[3];
 			
-			ucChecksum = tCommand.SOF + tCommand.Sensor + tCommand.Eje;
-			printf("Checksum: %i\n",ucChecksum);
+			bChecksum = tCommand.SOF + tCommand.Sensor + tCommand.Eje;
+			printf("Checksum: %i\n",bChecksum);
 			printf("CS: %i\n\n", tCommand.CS);
 			/*Validando Checksum*/
-			if(ucChecksum == tCommand.CS)
+			if(bChecksum == tCommand.CS)
 			{
 				printf("Interpretando mensaje recibido\n");
 				switch(tCommand.Sensor)
@@ -454,27 +454,27 @@ static void *vfnClientThread(void* vpArgs)
 				tResponse.Sensor = ERROR;
 				tResponse.dataLength = 0;
 				tResponse.CS 		= 255;
-				printf("Error en el mensaje ucChecksum fail...\n\n");
+				printf("Error en el mensaje Checksum fail...\n\n");
 			}
 			
 			/*Response to client*/
-			if(write(iSocket, &tResponse, sizeof(tResponse)) <= 0)
+			if(write(dwSocket, &tResponse, sizeof(tResponse)) <= 0)
 			{
 				printf("Error al enviar mensaje\n");
 			}
 
-		    pthread_mutex_unlock(&lock);
+		    pthread_mutex_unlock(&gpLock);
 
 
 		}
 
 	}
 	/*Cerrando Socket*/
-	close(iSocket);
-	printf("Socket #%i Cerrado\n", iSocket);
+	close(dwSocket);
+	printf("Socket #%i Cerrado\n", dwSocket);
 	/*Liberando memeria al pool comun*/
-	free(cpBuffer);
+	free(bpBuffer);
 	/*borrar asignacion de addr del puntero*/
-	cpBuffer = NULL;
+	bpBuffer = NULL;
 	pthread_exit(NULL);
 }

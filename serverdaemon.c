@@ -203,7 +203,7 @@ static void *vfnClientThread(void* vpArgs)
 			tCommand.CS = (uint8_t)bpBuffer[3];
 			
 
-			bChecksum = bfnChecksum((uint8_t *)tCommand, (sizeof(tCommand) - 1));
+			bChecksum = bfnChecksum(bpBuffer, (sizeof(tCommand) - 1));
 			printf("Checksum: %i\n",bChecksum);
 			printf("CS: %i\n\n", tCommand.CS);
 			/*Validando Checksum*/

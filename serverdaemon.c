@@ -492,8 +492,8 @@ uint8_t bfnChecksum(uint8_t *data, uint8_t size)
 	
 	for (i = 0; i < size; ++i)
 	{
-		result = result + &data;
-		data++;
+		result = result + *data;
+		*data++;
 	}
 
 	return result

@@ -181,7 +181,9 @@ static void *vfnClientThread(void* vpArgs)
 			pthread_mutex_lock(&gpLock);
 			
 			uint8_t bChecksum;
-			SCLIENTCOMMAND tCommand;
+			//SCLIENTCOMMAND tCommand;
+			SCLIENTCOMMAND *tCommand = malloc(sizeof *tCommand); 
+
 			SRESPONSECOMMAND tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
 			SRAWDATA tAccRawData;
 			SRAWDATA tMagRawData;
@@ -197,27 +199,27 @@ static void *vfnClientThread(void* vpArgs)
 			printf("CS:    \"%#2x\"\n\n",(uint8_t)bpBuffer[3]);
 			
 			/*Almacenando valores*/
-			tCommand.SOF = (uint8_t)bpBuffer[0];
-			tCommand.Sensor = (uint8_t)bpBuffer[1];
-			tCommand.Eje = (uint8_t)bpBuffer[2];
-			tCommand.CS = (uint8_t)bpBuffer[3];
+			tCommand->SOF = (uint8_t)bpBuffer[0];
+			tCommand->Sensor = (uint8_t)bpBuffer[1];
+			tCommand->Eje = (uint8_t)bpBuffer[2];
+			tCommand->CS = (uint8_t)bpBuffer[3];
 			
 
-			bChecksum = bfnChecksum(bpBuffer, (sizeof(tCommand) - 1));
+			bChecksum = bfnChecksum(bpBuffer, 3);
 			printf("Checksum: %i\n",bChecksum);
-			printf("CS: %i\n\n", tCommand.CS);
+			printf("CS: %i\n\n", tCommand->CS);
 			/*Validando Checksum*/
-			if(bChecksum == tCommand.CS)
+			if(bChecksum == tCommand->CS)
 			{
 				printf("Interpretando mensaje recibido\n");
-				switch(tCommand.Sensor)
+				switch(tCommand->Sensor)
 				{
 					case ACELEROMETRO:
 					{
 						tResponse.Sensor = ACELEROMETRO;
 						printf("Leyendo datos del Acelerometro...\n");
 						dwfnReadAccelMagnData(&tAccRawData, &tMagRawData);
-						switch(tCommand.Eje)
+						switch(tCommand->Eje)
 						{
 							case EJE_X:
 							{
@@ -263,7 +265,7 @@ static void *vfnClientThread(void* vpArgs)
 						tResponse.Sensor = MAGNETOMETRO;
 						printf("Leyendo datos del magnetometro...\n");
 						dwfnReadAccelMagnData(&tAccRawData, &tMagRawData);
-						switch(tCommand.Eje)
+						switch(tCommand->Eje)
 						{
 							case EJE_X:
 							{
@@ -311,7 +313,7 @@ static void *vfnClientThread(void* vpArgs)
 						tResponse.Sensor = GIROSCOPIO;
 						printf("Leyendo datos del giroscopio...\n");
 						dwfnReadGyroData(&tGyroRawData);
-						switch(tCommand.Eje)
+						switch(tCommand->Eje)
 						{
 							case EJE_X:
 							{
@@ -360,7 +362,7 @@ static void *vfnClientThread(void* vpArgs)
 						printf("Leyendo datos de todos los sensores...\n");
 						dwfnReadAccelMagnData(&tAccRawData, &tMagRawData);
 						dwfnReadGyroData(&tGyroRawData);
-						switch(tCommand.Eje)
+						switch(tCommand->Eje)
 						{
 							case EJE_X:
 							{
@@ -468,6 +470,11 @@ static void *vfnClientThread(void* vpArgs)
 			{
 				printf("Error al enviar mensaje\n");
 			}
+
+			/*Liberando memeria al pool comun*/
+			free(tCommand);
+			/*borrar asignacion de addr del puntero*/
+			tCommand = NULL;
 
 		    pthread_mutex_unlock(&gpLock);
 

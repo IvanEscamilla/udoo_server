@@ -12,22 +12,21 @@ read contra
 echo ""
 if [ $contra -eq 1 ] ; then
 
-    echo "Que tipo de seguridad? [1 o 2]"
-	echo "1. WPA-PSK"
-	echo "2. WPA-EAP"
-    read tipo
-    if [ $tipo -eq 1 ] ; then
-        $key_mgmt = WPA-PSK
-    else
-        $key_mgmt = WPA-EAP
-    fi
+ #    echo "Que tipo de seguridad? [1 o 2]"
+ #    echo "1. WPA-PSK"
+ #    echo "2. WPA-EAP"
+ #    read tipo
+ #    if [ $tipo -eq 1 ] ; then
+ #        $key_mgmt = WPA-PSK
+ #    else
+ #        $key_mgmt = WPA-EAP
+ #    fi
     
     echo "Introduce Password: "
     read pass
 
     output=$(nmcli device wifi connect "$SSID" password "$pass" iface wlan0 --timeout 10)
 else
-    $key_mgmt = NONE
     output=$(nmcli device wifi connect "$SSID" iface wlan0 --timeout 10)
 fi
 

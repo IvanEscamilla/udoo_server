@@ -51,7 +51,7 @@ pthread_t gpThreadId;
 pthread_mutex_t gpLock;
 
 static void  *vfnClientThread(void* vpArgs);
-uint8_t bfnChecksum(uint8_t *data, uint8_t size);
+uint8_t bfnChecksum(int8_t *data, uint8_t size);
 
 int main(int argc, char *argv[])
 {
@@ -485,7 +485,7 @@ static void *vfnClientThread(void* vpArgs)
 	pthread_exit(NULL);
 }
 
-uint8_t bfnChecksum(uint8_t *data, uint8_t size)
+uint8_t bfnChecksum(int8_t *data, uint8_t size)
 {
 	uint8_t result = 0;
 	uint8_t i;

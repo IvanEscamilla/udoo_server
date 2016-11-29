@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
     }  
    	
 	pthread_mutex_destroy(&gpLock);
-	uint8_t i = 0;
+	uint8_t i;
 	for (i = 0; i < bClientCounter; i++)
 	{
 		close(dwClient[i]);
@@ -488,8 +488,9 @@ static void *vfnClientThread(void* vpArgs)
 uint8_t bfnChecksum(uint8_t *data, uint8_t size)
 {
 	uint8_t result = 0;
-
-	for (uint8_t i = 0; i < size; ++i)
+	uint8_t i;
+	
+	for (i = 0; i < size; ++i)
 	{
 		result = result + data;
 		data++;

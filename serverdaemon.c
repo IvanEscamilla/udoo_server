@@ -138,8 +138,8 @@ int main(int argc, char *argv[])
     }  
    	
 	pthread_mutex_destroy(&gpLock);
-
-	for (uint8_t i = 0; i < bClientCounter; ++i)
+	uint8_t i = 0;
+	for (i = 0; i < bClientCounter; i++)
 	{
 		close(dwClient[i]);
 	} 

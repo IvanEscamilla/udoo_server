@@ -182,15 +182,16 @@ static void *vfnClientThread(void* vpArgs)
 			
 			uint8_t bChecksum;
 			//SCLIENTCOMMAND tCommand;
+			//SRESPONSECOMMAND tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
 			SCLIENTCOMMAND *tCommand = malloc(sizeof *tCommand); 
+			SRESPONSECOMMAND *tResponse = malloc(sizeof *tResponse); 
 
-			SRESPONSECOMMAND tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
 			SRAWDATA tAccRawData;
 			SRAWDATA tMagRawData;
 			SGYRORAWDATA tGyroRawData;
 
 			/*Response SOF*/
-			tResponse.SOF = 0xaa;
+			tResponse->SOF = 0xaa;
 			
 			/*Imprime comando recivido del cliente*/
 			printf("SOF:   \"%#2x\"\n",(uint8_t)bpBuffer[0]);
@@ -216,7 +217,7 @@ static void *vfnClientThread(void* vpArgs)
 				{
 					case ACELEROMETRO:
 					{
-						tResponse.Sensor = ACELEROMETRO;
+						tResponse->Sensor = ACELEROMETRO;
 						printf("Leyendo datos del Acelerometro...\n");
 						dwfnReadAccelMagnData(&tAccRawData, &tMagRawData);
 						switch(tCommand->Eje)
@@ -225,24 +226,24 @@ static void *vfnClientThread(void* vpArgs)
 							{
 								printf("Leyendo Eje x del Acelerometro...\n");
 								printf("X: %i\n",tAccRawData.x);
-								tResponse.dataLength = 1;
-								tResponse.data[0] = tAccRawData.x;
+								tResponse->dataLength = 1;
+								tResponse->data[0] = tAccRawData.x;
 
 							}break;
 							case EJE_Y:
 							{
 								printf("Leyendo Eje y del Acelerometro...\n");
 								printf("Y: %i\n",tAccRawData.y);
-								tResponse.dataLength = 1;
-								tResponse.data[0] = tAccRawData.y;
+								tResponse->dataLength = 1;
+								tResponse->data[0] = tAccRawData.y;
 
 							}break;
 							case EJE_Z:
 							{
 								printf("Leyendo Eje z del Acelerometro...\n");
 								printf("Z: %i\n",tAccRawData.z);
-								tResponse.dataLength = 1;
-								tResponse.data[0] = tAccRawData.z;
+								tResponse->dataLength = 1;
+								tResponse->data[0] = tAccRawData.z;
 
 							}break;
 							case EJE_XYZ:
@@ -251,10 +252,10 @@ static void *vfnClientThread(void* vpArgs)
 								printf("X: %i\n",tAccRawData.x);
 								printf("Y: %i\n",tAccRawData.y);
 								printf("Z: %i\n\n",tAccRawData.z);
-								tResponse.dataLength = 3;
-								tResponse.data[0] = tAccRawData.x;
-								tResponse.data[1] = tAccRawData.y;
-								tResponse.data[2] = tAccRawData.z;
+								tResponse->dataLength = 3;
+								tResponse->data[0] = tAccRawData.x;
+								tResponse->data[1] = tAccRawData.y;
+								tResponse->data[2] = tAccRawData.z;
 
 							}break;
 						}
@@ -262,7 +263,7 @@ static void *vfnClientThread(void* vpArgs)
 					}break;
 					case MAGNETOMETRO:
 					{
-						tResponse.Sensor = MAGNETOMETRO;
+						tResponse->Sensor = MAGNETOMETRO;
 						printf("Leyendo datos del magnetometro...\n");
 						dwfnReadAccelMagnData(&tAccRawData, &tMagRawData);
 						switch(tCommand->Eje)
@@ -271,16 +272,16 @@ static void *vfnClientThread(void* vpArgs)
 							{
 								printf("Leyendo Eje x del magnetometro...\n");
 								printf("X: %i\n",tMagRawData.x);
-								tResponse.dataLength = 1;
-								tResponse.data[0] = tMagRawData.x;
+								tResponse->dataLength = 1;
+								tResponse->data[0] = tMagRawData.x;
 
 							}break;
 							case EJE_Y:
 							{
 								printf("Leyendo Eje y del magnetometro...\n");
 								printf("Y: %i\n",tMagRawData.y);
-								tResponse.dataLength = 1;
-								tResponse.data[0] = tMagRawData.y;
+								tResponse->dataLength = 1;
+								tResponse->data[0] = tMagRawData.y;
 
 
 							}break;
@@ -288,8 +289,8 @@ static void *vfnClientThread(void* vpArgs)
 							{
 								printf("Leyendo Eje z del magnetometro...\n");
 								printf("Z: %i\n",tMagRawData.z);
-								tResponse.dataLength = 1;
-								tResponse.data[0] = tMagRawData.z;
+								tResponse->dataLength = 1;
+								tResponse->data[0] = tMagRawData.z;
 
 
 							}break;
@@ -299,10 +300,10 @@ static void *vfnClientThread(void* vpArgs)
 								printf("X: %i\n",tMagRawData.x);
 								printf("Y: %i\n",tMagRawData.y);
 								printf("Z: %i\n\n",tMagRawData.z);
-								tResponse.dataLength = 3;
-								tResponse.data[0] = tMagRawData.x;
-								tResponse.data[1] = tMagRawData.y;
-								tResponse.data[2] = tMagRawData.z;
+								tResponse->dataLength = 3;
+								tResponse->data[0] = tMagRawData.x;
+								tResponse->data[1] = tMagRawData.y;
+								tResponse->data[2] = tMagRawData.z;
 
 							}break;
 						}
@@ -310,7 +311,7 @@ static void *vfnClientThread(void* vpArgs)
 					}break;
 					case GIROSCOPIO:
 					{
-						tResponse.Sensor = GIROSCOPIO;
+						tResponse->Sensor = GIROSCOPIO;
 						printf("Leyendo datos del giroscopio...\n");
 						dwfnReadGyroData(&tGyroRawData);
 						switch(tCommand->Eje)
@@ -319,16 +320,16 @@ static void *vfnClientThread(void* vpArgs)
 							{
 								printf("Leyendo Eje x del giroscopio...\n");
 								printf("X: %i\n",tGyroRawData.x);
-								tResponse.dataLength = 1;
-								tResponse.data[0] = tGyroRawData.x;
+								tResponse->dataLength = 1;
+								tResponse->data[0] = tGyroRawData.x;
 
 							}break;
 							case EJE_Y:
 							{
 								printf("Leyendo Eje y del giroscopio...\n");
 								printf("Y: %i\n",tGyroRawData.y);
-								tResponse.dataLength = 1;
-								tResponse.data[0] = tGyroRawData.y;
+								tResponse->dataLength = 1;
+								tResponse->data[0] = tGyroRawData.y;
 
 
 							}break;
@@ -336,8 +337,8 @@ static void *vfnClientThread(void* vpArgs)
 							{
 								printf("Leyendo Eje z del giroscopio...\n");
 								printf("Z: %i\n",tGyroRawData.z);
-								tResponse.dataLength = 1;
-								tResponse.data[0] = tGyroRawData.z;
+								tResponse->dataLength = 1;
+								tResponse->data[0] = tGyroRawData.z;
 
 
 							}break;
@@ -347,10 +348,10 @@ static void *vfnClientThread(void* vpArgs)
 								printf("X: %i\n",tGyroRawData.x);
 								printf("Y: %i\n",tGyroRawData.y);
 								printf("Z: %i\n\n",tGyroRawData.z);
-								tResponse.dataLength = 3;
-								tResponse.data[0] = tGyroRawData.x;
-								tResponse.data[1] = tGyroRawData.y;
-								tResponse.data[2] = tGyroRawData.z;
+								tResponse->dataLength = 3;
+								tResponse->data[0] = tGyroRawData.x;
+								tResponse->data[1] = tGyroRawData.y;
+								tResponse->data[2] = tGyroRawData.z;
 
 							}break;
 						}
@@ -358,7 +359,7 @@ static void *vfnClientThread(void* vpArgs)
 					}break;
 					case TODOS:
 					{
-						tResponse.Sensor = TODOS;
+						tResponse->Sensor = TODOS;
 						printf("Leyendo datos de todos los sensores...\n");
 						dwfnReadAccelMagnData(&tAccRawData, &tMagRawData);
 						dwfnReadGyroData(&tGyroRawData);
@@ -370,10 +371,10 @@ static void *vfnClientThread(void* vpArgs)
 								printf("Acc X: %i\n",tAccRawData.x);
 								printf("Mag X: %i\n",tMagRawData.x);
 								printf("Gyr X: %i\n",tGyroRawData.x);
-								tResponse.dataLength = 3;
-								tResponse.data[0] = tAccRawData.x;
-								tResponse.data[1] = tMagRawData.x;
-								tResponse.data[2] = tGyroRawData.x;
+								tResponse->dataLength = 3;
+								tResponse->data[0] = tAccRawData.x;
+								tResponse->data[1] = tMagRawData.x;
+								tResponse->data[2] = tGyroRawData.x;
 
 
 							}break;
@@ -383,10 +384,10 @@ static void *vfnClientThread(void* vpArgs)
 								printf("Acc Y: %i\n",tAccRawData.y);
 								printf("Mag Y: %i\n",tMagRawData.y);
 								printf("Gyr Y: %i\n",tGyroRawData.y);
-								tResponse.dataLength = 3;
-								tResponse.data[0] = tAccRawData.y;
-								tResponse.data[1] = tMagRawData.y;
-								tResponse.data[2] = tGyroRawData.y;
+								tResponse->dataLength = 3;
+								tResponse->data[0] = tAccRawData.y;
+								tResponse->data[1] = tMagRawData.y;
+								tResponse->data[2] = tGyroRawData.y;
 
 
 							}break;
@@ -396,10 +397,10 @@ static void *vfnClientThread(void* vpArgs)
 								printf("Acc Z: %i\n",tAccRawData.z);
 								printf("Mag Z: %i\n",tMagRawData.z);
 								printf("Gyr Z: %i\n",tGyroRawData.z);
-								tResponse.dataLength = 3;
-								tResponse.data[0] = tAccRawData.z;
-								tResponse.data[1] = tMagRawData.z;
-								tResponse.data[2] = tGyroRawData.z;
+								tResponse->dataLength = 3;
+								tResponse->data[0] = tAccRawData.z;
+								tResponse->data[1] = tMagRawData.z;
+								tResponse->data[2] = tGyroRawData.z;
 
 
 							}break;
@@ -409,24 +410,24 @@ static void *vfnClientThread(void* vpArgs)
 								printf("Acc X: %i\n",tAccRawData.x);
 								printf("Acc Y: %i\n",tAccRawData.y);
 								printf("Acc Z: %i\n\n",tAccRawData.z);
-								tResponse.dataLength = 9;
-								tResponse.data[0] = tAccRawData.x;
-								tResponse.data[1] = tAccRawData.y;
-								tResponse.data[2] = tAccRawData.z;
+								tResponse->dataLength = 9;
+								tResponse->data[0] = tAccRawData.x;
+								tResponse->data[1] = tAccRawData.y;
+								tResponse->data[2] = tAccRawData.z;
 
 								printf("Mag X: %i\n",tMagRawData.x);
 								printf("Mag Y: %i\n",tMagRawData.y);
 								printf("Mag Z: %i\n\n",tMagRawData.z);
-								tResponse.data[3] = tMagRawData.x;
-								tResponse.data[4] = tMagRawData.y;
-								tResponse.data[5] = tMagRawData.z;
+								tResponse->data[3] = tMagRawData.x;
+								tResponse->data[4] = tMagRawData.y;
+								tResponse->data[5] = tMagRawData.z;
 
 								printf("Gyr X: %i\n",tGyroRawData.x);
 								printf("Gyr Y: %i\n",tGyroRawData.y);
 								printf("Gyr Z: %i\n\n",tGyroRawData.z);
-								tResponse.data[6] = tGyroRawData.x;
-								tResponse.data[7] = tGyroRawData.y;
-								tResponse.data[8] = tGyroRawData.z;
+								tResponse->data[6] = tGyroRawData.x;
+								tResponse->data[7] = tGyroRawData.y;
+								tResponse->data[8] = tGyroRawData.z;
 
 							}break;
 						}
@@ -436,32 +437,32 @@ static void *vfnClientThread(void* vpArgs)
 
 				/*Calculando Checksum*/
 
-				int32_t dwCs =	(int32_t)tResponse.SOF + (int32_t)tResponse.Sensor + (int32_t)tResponse.dataLength + (int32_t)tResponse.data[0] + (int32_t)tResponse.data[1] + (int32_t)tResponse.data[2] + (int32_t)tResponse.data[3] + (int32_t)tResponse.data[4] + (int32_t)tResponse.data[5] + (int32_t)tResponse.data[6] + (int32_t)tResponse.data[7] + (int32_t)tResponse.data[8];
-				tResponse.CS = (uint8_t) dwCs;
+				int32_t dwCs =	(int32_t)tResponse->SOF + (int32_t)tResponse->Sensor + (int32_t)tResponse->dataLength + (int32_t)tResponse->data[0] + (int32_t)tResponse->data[1] + (int32_t)tResponse->data[2] + (int32_t)tResponse->data[3] + (int32_t)tResponse->data[4] + (int32_t)tResponse->data[5] + (int32_t)tResponse->data[6] + (int32_t)tResponse->data[7] + (int32_t)tResponse->data[8];
+				tResponse->CS = (uint8_t) dwCs;
 
 				printf("El tamaño es de %i\n", sizeof(tResponse));
-				printf("SOF:    	int val: %i 	hex val: %#2x		size: %i \n",  tResponse.SOF, (uint8_t)tResponse.SOF, sizeof(tResponse.SOF));
-				printf("Sensor: 	int val: %i 	hex val: %#2x		size: %i \n",  tResponse.Sensor, (uint8_t)tResponse.Sensor, sizeof(tResponse.Sensor));
-				printf("dataLength:	int val: %i 	hex val: %#2x		size: %i \n",  tResponse.dataLength, (uint8_t)tResponse.dataLength, sizeof(tResponse.dataLength));
-				printf("CS: 		int val: %i 	hex val: %#2x		size: %i \n",  tResponse.CS, (uint8_t)tResponse.CS, sizeof(tResponse.CS));
-				printf("data[0]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[0], (int16_t)tResponse.data[0], sizeof(tResponse.data[0]));
-				printf("data[1]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[1], (int16_t)tResponse.data[1], sizeof(tResponse.data[1]));
-				printf("data[2]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[2], (int16_t)tResponse.data[2], sizeof(tResponse.data[2]));
-				printf("data[3]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[3], (int16_t)tResponse.data[3], sizeof(tResponse.data[3]));
-				printf("data[4]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[4], (int16_t)tResponse.data[4], sizeof(tResponse.data[4]));
-				printf("data[5]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[5], (int16_t)tResponse.data[5], sizeof(tResponse.data[5]));
-				printf("data[6]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[6], (int16_t)tResponse.data[6], sizeof(tResponse.data[6]));
-				printf("data[7]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[7], (int16_t)tResponse.data[7], sizeof(tResponse.data[7]));
-				printf("data[8]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse.data[8], (int16_t)tResponse.data[8], sizeof(tResponse.data[8]));
+				printf("SOF:    	int val: %i 	hex val: %#2x		size: %i \n",  tResponse->SOF, (uint8_t)tResponse->SOF, sizeof(tResponse->SOF));
+				printf("Sensor: 	int val: %i 	hex val: %#2x		size: %i \n",  tResponse->Sensor, (uint8_t)tResponse->Sensor, sizeof(tResponse->Sensor));
+				printf("dataLength:	int val: %i 	hex val: %#2x		size: %i \n",  tResponse->dataLength, (uint8_t)tResponse->dataLength, sizeof(tResponse->dataLength));
+				printf("CS: 		int val: %i 	hex val: %#2x		size: %i \n",  tResponse->CS, (uint8_t)tResponse->CS, sizeof(tResponse->CS));
+				printf("data[0]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse->data[0], (int16_t)tResponse->data[0], sizeof(tResponse->data[0]));
+				printf("data[1]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse->data[1], (int16_t)tResponse->data[1], sizeof(tResponse->data[1]));
+				printf("data[2]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse->data[2], (int16_t)tResponse->data[2], sizeof(tResponse->data[2]));
+				printf("data[3]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse->data[3], (int16_t)tResponse->data[3], sizeof(tResponse->data[3]));
+				printf("data[4]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse->data[4], (int16_t)tResponse->data[4], sizeof(tResponse->data[4]));
+				printf("data[5]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse->data[5], (int16_t)tResponse->data[5], sizeof(tResponse->data[5]));
+				printf("data[6]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse->data[6], (int16_t)tResponse->data[6], sizeof(tResponse->data[6]));
+				printf("data[7]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse->data[7], (int16_t)tResponse->data[7], sizeof(tResponse->data[7]));
+				printf("data[8]: 	int val: %i 	hex val: %#hx		size: %i \n",  tResponse->data[8], (int16_t)tResponse->data[8], sizeof(tResponse->data[8]));
 
 				
 			}
 			else
 			{
 
-				tResponse.Sensor = ERROR;
-				tResponse.dataLength = 0;
-				tResponse.CS 		= 255;
+				tResponse->Sensor = ERROR;
+				tResponse->dataLength = 0;
+				tResponse->CS 		= 255;
 				printf("Error en el mensaje Checksum fail...\n\n");
 			}
 			
@@ -473,8 +474,12 @@ static void *vfnClientThread(void* vpArgs)
 
 			/*Liberando memeria al pool comun*/
 			free(tCommand);
+			free(tResponse);
+
 			/*borrar asignacion de addr del puntero*/
 			tCommand = NULL;
+			tResponse = NULL;
+
 
 		    pthread_mutex_unlock(&gpLock);
 

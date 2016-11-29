@@ -437,9 +437,9 @@ static void *vfnClientThread(void* vpArgs)
 				/*Calculando Checksum*/
 
 				int32_t dwCs =	(int32_t)tResponse->SOF + (int32_t)tResponse->Sensor + (int32_t)tResponse->dataLength + (int32_t)tResponse->data[0] + (int32_t)tResponse->data[1] + (int32_t)tResponse->data[2] + (int32_t)tResponse->data[3] + (int32_t)tResponse->data[4] + (int32_t)tResponse->data[5] + (int32_t)tResponse->data[6] + (int32_t)tResponse->data[7] + (int32_t)tResponse->data[8];
-				tResponse->CS = (uint8_t) dwCs;
 
 				printf("%i \n", bfnChecksum((int8_t *)tResponse, sizeof(SRESPONSECOMMAND)));
+				tResponse->CS = (uint8_t) dwCs;
 
 				printf("El tamaño es de %i\n", sizeof(tResponse));
 				printf("SOF:    	int val: %i 	hex val: %#2x		size: %i \n",  tResponse->SOF, (uint8_t)tResponse->SOF, sizeof(tResponse->SOF));

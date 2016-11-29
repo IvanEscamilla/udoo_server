@@ -496,5 +496,5 @@ uint8_t bfnChecksum(uint8_t *data, uint8_t size)
 		data++;
 	}
 
-	return result
+	return result;
 }

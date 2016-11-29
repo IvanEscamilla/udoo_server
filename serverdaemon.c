@@ -51,6 +51,7 @@ pthread_t gpThreadId;
 pthread_mutex_t gpLock;
 
 static void  *vfnClientThread(void* vpArgs);
+uint8_t bfnChecksum(uint8_t *data, uint8_t size);
 
 int main(int argc, char *argv[])
 {
@@ -59,8 +60,8 @@ int main(int argc, char *argv[])
     int32_t dwSocketFd;
     int32_t dwBindFd;
     int32_t dwListenFd;
-    int32_t dwClient;
-	
+    int32_t dwClient[LISTEN_BACKLOG];
+	int8_t	bClientCounter = 0;
 	/*Configurando Magnetometro y Acelerometro*/	
 	if(dwfnFXOS8700CQInit() < 0)
 	{
@@ -129,15 +130,19 @@ int main(int argc, char *argv[])
     {
 		/*En espera de un Cliente*/
 		printf("Esperando cliente...\n");    
-     	dwClient = accept(dwSocketFd,(struct sockaddr *)&socketOptions,&addrlen);
+     	dwClient[bClientCounter++] = accept(dwSocketFd,(struct sockaddr *)&socketOptions,&addrlen);
 		printf("cliente coonectado creando hilo de conexión...\n");
 		/*Creando Hilo vfnClientThread mandandole por parametro el socket del Cliente para recibir los mensajes del usuario conectado*/
-     	pthread_create(&gpThreadId,NULL,&vfnClientThread,(void *)&dwClient);
-     	printf("socket numero: %i creado satisfactoriamente, ejecutando Hilo...\n",dwClient);
+     	pthread_create(&gpThreadId,NULL,&vfnClientThread,(void *)&dwClient[bClientCounter - 1]);
+     	printf("socket numero: %i creado satisfactoriamente, ejecutando Hilo...\n",dwClient[bClientCounter - 1]);
     }  
    	
 	pthread_mutex_destroy(&gpLock);
-	close(dwClient); 
+
+	for (uint8_t i = 0; i < bClientCounter; ++i)
+	{
+		close(dwClient[i]);
+	} 
 }
 
 static void *vfnClientThread(void* vpArgs)
@@ -197,7 +202,8 @@ static void *vfnClientThread(void* vpArgs)
 			tCommand.Eje = (uint8_t)bpBuffer[2];
 			tCommand.CS = (uint8_t)bpBuffer[3];
 			
-			bChecksum = tCommand.SOF + tCommand.Sensor + tCommand.Eje;
+
+			bChecksum = bfnChecksum((uint8_t *)tCommand, (sizeof(tCommand) - 1));
 			printf("Checksum: %i\n",bChecksum);
 			printf("CS: %i\n\n", tCommand.CS);
 			/*Validando Checksum*/
@@ -477,4 +483,17 @@ static void *vfnClientThread(void* vpArgs)
 	/*borrar asignacion de addr del puntero*/
 	bpBuffer = NULL;
 	pthread_exit(NULL);
+}
+
+uint8_t bfnChecksum(uint8_t *data, uint8_t size)
+{
+	uint8_t result = 0;
+
+	for (uint8_t i = 0; i < size; ++i)
+	{
+		result = result + data;
+		data++;
+	}
+
+	return result
 }

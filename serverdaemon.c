@@ -504,7 +504,7 @@ uint8_t bfnChecksum(void *vpBlock, uint8_t bSize)
 	uint8_t *bpData;
 	bpData = vpBlock;
 
-	while(len--) result += *bpData++;
+	while(bSize--) result += *bpData++;
 
 	return result;
 }

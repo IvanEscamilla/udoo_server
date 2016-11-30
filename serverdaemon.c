@@ -51,7 +51,7 @@ pthread_t gpThreadId;
 pthread_mutex_t gpLock;
 
 static void  *vfnClientThread(void* vpArgs);
-uint8_t bfnChecksum(int8_t *data, uint8_t size);
+uint8_t bfnChecksum(void *vpBlock, uint8_t bSize);
 
 int main(int argc, char *argv[])
 {
@@ -205,7 +205,7 @@ static void *vfnClientThread(void* vpArgs)
 			tCommand->CS = (uint8_t)bpBuffer[3];
 			
 
-			bChecksum = bfnChecksum(bpBuffer, 3);
+			bChecksum = bfnChecksum((void *)bpBuffer, 3);
 			printf("Checksum: %i\n",bChecksum);
 			printf("CS: %i\n\n", tCommand->CS);
 			/*Validando Checksum*/
@@ -438,7 +438,7 @@ static void *vfnClientThread(void* vpArgs)
 
 				int32_t dwCs =	(int32_t)tResponse->SOF + (int32_t)tResponse->Sensor + (int32_t)tResponse->dataLength + (int32_t)tResponse->data[0] + (int32_t)tResponse->data[1] + (int32_t)tResponse->data[2] + (int32_t)tResponse->data[3] + (int32_t)tResponse->data[4] + (int32_t)tResponse->data[5] + (int32_t)tResponse->data[6] + (int32_t)tResponse->data[7] + (int32_t)tResponse->data[8];
 
-				printf("%i \n", bfnChecksum((int8_t *)tResponse, sizeof(SRESPONSECOMMAND)));
+				printf("%i \n", bfnChecksum((void *)tResponse, sizeof(SRESPONSECOMMAND)));
 				tResponse->CS = (uint8_t) dwCs;
 
 				printf("El tamaño es de %i\n", sizeof(tResponse));
@@ -498,16 +498,13 @@ static void *vfnClientThread(void* vpArgs)
 	pthread_exit(NULL);
 }
 
-uint8_t bfnChecksum(int8_t *data, uint8_t size)
+uint8_t bfnChecksum(void *vpBlock, uint8_t bSize)
 {
 	uint8_t result = 0;
-	uint8_t i;
-	
-	for (i = 0; i < size; ++i)
-	{
-		result = result + *data;
-		data++;
-	}
+	uint8_t *bpData;
+	bpData = vpBlock;
+
+	while(len--) result += *bpData++;
 
 	return result;
 }

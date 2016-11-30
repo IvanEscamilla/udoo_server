@@ -468,7 +468,7 @@ static void *vfnClientThread(void* vpArgs)
 			}
 			
 			/*Response to client*/
-			if(write(dwSocket, &tResponse, sizeof(SRESPONSECOMMAND)) <= 0)
+			if(write(dwSocket, tResponse, sizeof(SRESPONSECOMMAND)) <= 0)
 			{
 				printf("Error al enviar mensaje\n");
 			}

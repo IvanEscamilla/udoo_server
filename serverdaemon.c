@@ -323,8 +323,8 @@ int set_interface_attribs (int fd, int speed, int parity)
         memset (&tty, 0, sizeof tty);
         if (tcgetattr (fd, &tty) != 0)
         {
-                 error_fatal("Error from tcgetattr\n");
-                return -1;
+            printf("\n Inicialización UART fallida!\n");
+            exit(EXIT_FAILURE);
         }
  
         cfsetospeed (&tty, speed);
@@ -351,8 +351,8 @@ int set_interface_attribs (int fd, int speed, int parity)
  
         if (tcsetattr (fd, TCSANOW, &tty) != 0)
         {
-                 error_fatal("Error from tcsetattr \n");
-                return -1;
+            printf("\n Inicialización UART fallida!\n");
+            exit(EXIT_FAILURE);
         }
  
         return 0;
@@ -364,8 +364,8 @@ void set_blocking (int fd, int should_block)
         memset (&tty, 0, sizeof tty);
         if (tcgetattr (fd, &tty) != 0)
         {
-                 error_fatal("Error from tggetattr\n");
-                return;
+			printf("\n Inicialización UART fallida!\n");
+            exit(EXIT_FAILURE);
         }
  
         tty.c_cc[VMIN]  = should_block ? 1 : 0;
@@ -373,7 +373,8 @@ void set_blocking (int fd, int should_block)
  
         if (tcsetattr (fd, TCSANOW, &tty) != 0)
         {
-             error_fatal("Error setting term attributes\n");
+            printf("\n Inicialización UART fallida!\n");
+            exit(EXIT_FAILURE);
         }
  
 }

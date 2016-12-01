@@ -104,8 +104,8 @@ int main(int argc, char *argv[])
     fdUart = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
     if (fdUart < 0)
     {
-            error_fatal("Error opening uart\n");
-            return 0;
+            printf("\n Inicialización UART fallida!\n");
+            exit(EXIT_FAILURE);
     }
 
     set_interface_attribs (fdUart, B115200, PARENB);  // set speed to 115,200 bps, 8n1 (even parity)

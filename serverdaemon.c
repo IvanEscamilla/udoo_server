@@ -35,17 +35,15 @@ typedef int8_t bool;
 
 typedef struct tClient {
    uint8_t  SOF;
-   uint8_t  Sensor;
-   uint8_t  Eje;
+   uint8_t  Potencia;
+   uint8_t  Angulo;
    uint8_t  CS;
 } SCLIENTCOMMAND;
 
 typedef struct tResponse {
    uint8_t  SOF;
-   uint8_t  Sensor;
-   uint8_t  dataLength;
+   uint8_t  status;
    uint8_t  CS;
-   int16_t data[9];
 } SRESPONSECOMMAND;
 
 #define WAIST 		0
@@ -70,7 +68,6 @@ typedef struct tKinetis {
 /*UART*/
 char *portname = "/dev/ttymxc5";
 int  fdUart;
-char data[5];
 
 pthread_t gpThreadId;
 pthread_mutex_t gpLock;
@@ -79,6 +76,7 @@ int set_interface_attribs (int fd, int speed, int parity);
 void set_blocking (int fd, int should_block);
 static void  *vfnClientThread(void* vpArgs);
 uint8_t bfnChecksum(void *vpBlock, uint8_t bSize);
+uint8_t wfnMaps(uint8_t wX, uint8_t wInMin, uint8_t wInMax, uint8_t wOutMin, uint8_t wOutMax);
 
 int main(int argc, char *argv[])
 {
@@ -89,19 +87,7 @@ int main(int argc, char *argv[])
     int32_t dwListenFd;
     int32_t dwClient[LISTEN_BACKLOG];
 	int8_t	bClientCounter = 0;
-	/*Configurando Magnetometro y Acelerometro*/	
-	// if(dwfnFXOS8700CQInit() < 0)
-	// {
-	// 	printf("\n Inicialización Acelerometro y Magnetometro fallida!\n");
- 	//        exit(EXIT_FAILURE);	
-	// }
 
-	/*Configurando Giroscopio*/	
-	//if(dwfnFXAS21002Init() < 0)
-	//{
-	//	printf("\n Inicialización Giroscopio fallida!\n");
-    //   exit(EXIT_FAILURE);	
-	//}
 	 /*Init UART*/
     fdUart = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
     if (fdUart < 0)
@@ -216,69 +202,119 @@ static void *vfnClientThread(void* vpArgs)
 		{  
 			pthread_mutex_lock(&gpLock);
 			
-			//uint8_t bChecksum;
-			//SCLIENTCOMMAND tCommand;
-			//SRESPONSECOMMAND tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
+			char *ansBuf = malloc(3 * sizeof(char));
 			SCLIENTCOMMAND *tCommand = malloc(sizeof *tCommand); 
 			SRESPONSECOMMAND *tResponse = malloc(sizeof *tResponse);
 			SKINETISCOMMAND *tKinetis = malloc(sizeof *tKinetis);
-			//SRAWDATA tAccRawData;
-			//SRAWDATA tMagRawData;
-			//SGYRORAWDATA tGyroRawData;
+			
+			/*Response SOF
+				Udoo = 0xa
+				Cel  = 0x1
+				Kl25 = 0x2
+			*/
 
-			/*Response SOF*/
-			tResponse->SOF = 0xaa;
+			tResponse->SOF = 0xa1;
+			tKinetis->SOF = 0xa2;
 			
 			/*Imprime comando recivido del cliente*/
 			printf("SOF:   		\"%#2x\"\n",(uint8_t)bpBuffer[0]);
-			printf("Servo:		\"%#2x\"\n",(uint8_t)bpBuffer[1]);
+			printf("Potencia:	\"%#2x\"\n",(uint8_t)bpBuffer[1]);
 			printf("Angulo:   	\"%#2x\"\n",(uint8_t)bpBuffer[2]);
-			printf("direccion:  \"%#2x\"\n",(uint8_t)bpBuffer[3]);
-			printf("CS:    		\"%#2x\"\n\n",(uint8_t)bpBuffer[4]);
+			printf("CS:    		\"%#2x\"\n\n",(uint8_t)bpBuffer[3]);
 			
-			/*Almacenando valores*/
-			tKinetis->SOF 		 = 0xaa;//(uint8_t)(bpBuffer[0]);
-			tKinetis->leftPower  = 100;//(uint8_t)bpBuffer[1];
-			tKinetis->leftDir    = FORWARD;//(uint8_t)bpBuffer[2];
-			tKinetis->rightPower = 100;//(uint8_t)bpBuffer[3];
-			tKinetis->rightDir	 = FORWARD;
-			tKinetis->CS 		 = 0x72;//(uint8_t)bpBuffer[4];
+			/*Almacenando valores recibidos por el celular*/
+			tCommand->Potencia 	= (uint8_t)bpBuffer[1];
+			tCommand->Angulo 	= (uint8_t)bpBuffer[2];
 
-			write(fdUart, tKinetis, 6);
-			/*bChecksum = bfnChecksum((void *)bpBuffer, 4);
+			bChecksum = bfnChecksum((void *)bpBuffer, 4);
 			printf("Checksum: %i\n",bChecksum);
-			printf("CS: %i\n\n", tKinetis->CS);
-			*//*Validando Checksum*/
-			/*if(bChecksum == tKinetis->CS)
+			printf("CS: %i\n\n", tCommand->CS);
+
+			// tKinetis->leftPower  = 100;//(uint8_t)bpBuffer[1];
+			// tKinetis->leftDir    = FORWARD;//(uint8_t)bpBuffer[2];
+			// tKinetis->rightPower = 100;//(uint8_t)bpBuffer[3];
+			// tKinetis->rightDir	 = FORWARD;
+			// tKinetis->CS 		 = 0x72;//(uint8_t)bpBuffer[4];
+
+			// write(fdUart, tKinetis, 6);
+			
+			/*Validando Checksum*/
+			if(bChecksum == tCommand->CS)
 			{
-				if(write(fdUart, tKinetis, 5) <= 0)
+				if(tCommand->Angulo >= 0 && tCommand <= 180)
 				{
-					printf("Error al enviar mensaje\n");
-					tResponse->Sensor = ERROR;
-					tResponse->dataLength = 0;
-					tResponse->CS 		= 255;
-					printf("Error en el mensaje Checksum fail...\n\n");
+					/*Esta en el primer o segundo cuadrante*/
+					tKinetis->leftDir = FORWARD;
+					tKinetis->rightDir = FORWARD;					
+					if(tCommand->Angulo >= 0 && tCommand <= 90)
+					{
+						/*Primer Cuadrante*/
+						uint8_t atenuacion = wfnMaps(tCommand->Angulo,0,90,0,100);
+						tKinetis->leftPower = tCommand->Potencia - atenuacion;
+					}
+					else
+					{
+						/*Segundo Cuadrante*/
+						uint8_t atenuacion = wfnMaps(tCommand->Angulo,90,180,0,100);
+						tKinetis->rightPower = tCommand->Potencia - atenuacion;
+					}
 				}
 				else
 				{
-					tResponse->Sensor = ERROR;
-					tResponse->dataLength = 0;
-					tResponse->CS 		= 255;
-					printf("Error en el mensaje Checksum fail...\n\n");
+					/*Esta en el tercer o cuarto cuadrante*/
+					tKinetis->leftDir = BACKWARD;
+					tKinetis->rightDir = BACKWARD;
+					if(tCommand->Angulo >= 180 && tCommand <= 270)
+					{
+						/*Tercer Cuadrante*/
+						uint8_t atenuacion = wfnMaps(tCommand->Angulo,180,270,0,100);
+						tKinetis->leftPower = tCommand->Potencia - atenuacion;
+					}
+					else
+					{
+						/*Cuarto Cuadrante*/
+						uint8_t atenuacion = wfnMaps(tCommand->Angulo,270,360,0,100);
+						tKinetis->rightPower = tCommand->Potencia - atenuacion;
+					}
+
 				}
 
+				tKinetis->CS = bfnChecksum((void *)tKinetis, 5);
+
+				if(write(fdUart, tKinetis, 6) <= 0)
+				{
+					printf("Error al enviar mensaje a KL25\n");
+					tResponse->status = ERROR;
+					tResponse->CS 		= 255;
+				}
+				else
+				{
+					usleep (15000);
+	                bytesReaded = read(fdUart,(void *)ansBuf,3);
+					bChecksum = bfnChecksum((void *)ansBuf, bytesReaded);
+					if(bChecksum == ansBuf[2])
+					{
+						printf("Data Received Kl25: %01x : %01x : %01x\n\n",(uint8_t)ansBuf[0], (uint8_t)ansBuf[1], (uint8_t)ansBuf[2]);
+						tResponse->status = (uint8_t)ansBuf[1];
+						tResponse->CS 	  = bfnChecksum((void *)tResponse, 3);
+
+					}
+					else
+					{
+						printf("Error al recibir mensaje de KL25\n");
+						tResponse->status = ERROR;
+						tResponse->CS 		= 255;
+					}
+				}
 			}
 			else
 			{
-				tResponse->Sensor = ERROR;
-				tResponse->dataLength = 0;
+				tResponse->Potencia = 0;
+				tResponse->Angulo	= 0;
 				tResponse->CS 		= 255;
 				printf("Error en el mensaje Checksum fail...\n\n");
 			}
-			*/
-			tResponse->Sensor = ERROR;
-			tResponse->dataLength = 0;
-			tResponse->CS 		= 255;
+			
 			/*Response to client*/
 			if(write(dwSocket, tResponse, sizeof(SRESPONSECOMMAND)) <= 0)
 			{
@@ -289,11 +325,13 @@ static void *vfnClientThread(void* vpArgs)
 			free(tCommand);
 			free(tResponse);
 			free(tKinetis);
+			free(ansBuf);
 
 			/*borrar asignacion de addr del puntero*/
 			tCommand = NULL;
 			tResponse = NULL;
 			tKinetis = NULL;
+			ansBuf = NULL;
 
 		    pthread_mutex_unlock(&gpLock);
 
@@ -362,6 +400,12 @@ int set_interface_attribs (int fd, int speed, int parity)
         }
  
         return 0;
+}
+
+
+uint8_t wfnMaps(uint8_t wX, uint8_t wInMin, uint8_t wInMax, uint8_t wOutMin, uint8_t wOutMax)
+{
+  return (wX - wInMin) * ((wOutMax - wOutMin) / (wInMax - wInMin)) + wOutMin;
 }
  
 void set_blocking (int fd, int should_block)

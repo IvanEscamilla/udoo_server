@@ -60,9 +60,10 @@ typedef struct tResponse {
 
 typedef struct tKinetis {
    uint8_t  SOF;
-   uint8_t  Servo;
-   uint8_t  dir;
-   uint8_t  Angle;
+   uint8_t  leftPower;
+   uint8_t  leftDir;
+   uint8_t  rightPower;
+   uint8_t  rightDir;
    uint8_t  CS;
 } SKINETISCOMMAND;
 
@@ -236,19 +237,20 @@ static void *vfnClientThread(void* vpArgs)
 			printf("CS:    		\"%#2x\"\n\n",(uint8_t)bpBuffer[4]);
 			
 			/*Almacenando valores*/
-			tKinetis->SOF = (uint8_t)bpBuffer[0];
-			tKinetis->Servo = (uint8_t)bpBuffer[1];
-			tKinetis->dir = (uint8_t)bpBuffer[2];
-			tKinetis->Angle = (uint8_t)bpBuffer[3];
-			tKinetis->CS = (uint8_t)bpBuffer[4];
+			tKinetis->SOF 		 = 0xaa;//(uint8_t)(bpBuffer[0]);
+			tKinetis->leftPower  = 100;//(uint8_t)bpBuffer[1];
+			tKinetis->leftDir    = FORWARD;//(uint8_t)bpBuffer[2];
+			tKinetis->rightPower = 100;//(uint8_t)bpBuffer[3];
+			tKinetis->rightDir	 = FORWARD;
+			tKinetis->CS 		 = 0x72//(uint8_t)bpBuffer[4];
 
-			bChecksum = bfnChecksum((void *)bpBuffer, 4);
+			write(fdUart, tKinetis, 6);
+			/*bChecksum = bfnChecksum((void *)bpBuffer, 4);
 			printf("Checksum: %i\n",bChecksum);
 			printf("CS: %i\n\n", tKinetis->CS);
-			/*Validando Checksum*/
-			if(bChecksum == tKinetis->CS)
+			*//*Validando Checksum*/
+			/*if(bChecksum == tKinetis->CS)
 			{
-				/*Response to Kinetis*/
 				if(write(fdUart, tKinetis, 5) <= 0)
 				{
 					printf("Error al enviar mensaje\n");
@@ -273,7 +275,10 @@ static void *vfnClientThread(void* vpArgs)
 				tResponse->CS 		= 255;
 				printf("Error en el mensaje Checksum fail...\n\n");
 			}
-			
+			*/
+			tResponse->Sensor = ERROR;
+			tResponse->dataLength = 0;
+			tResponse->CS 		= 255;
 			/*Response to client*/
 			if(write(dwSocket, tResponse, sizeof(SRESPONSECOMMAND)) <= 0)
 			{

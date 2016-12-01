@@ -216,7 +216,7 @@ static void *vfnClientThread(void* vpArgs)
 		{  
 			pthread_mutex_lock(&gpLock);
 			
-			uint8_t bChecksum;
+			//uint8_t bChecksum;
 			//SCLIENTCOMMAND tCommand;
 			//SRESPONSECOMMAND tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
 			SCLIENTCOMMAND *tCommand = malloc(sizeof *tCommand); 

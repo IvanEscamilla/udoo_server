@@ -249,7 +249,7 @@ static void *vfnClientThread(void* vpArgs)
 			if(bChecksum == tKinetis->CS)
 			{
 				/*Response to Kinetis*/
-				if(write(fdUart, (void *)tKinetis, 5) <= 0)
+				if(write(fdUart, tKinetis, 5) <= 0)
 				{
 					printf("Error al enviar mensaje\n");
 					tResponse->Sensor = ERROR;

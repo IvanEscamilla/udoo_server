@@ -242,7 +242,7 @@ static void *vfnClientThread(void* vpArgs)
 			tKinetis->leftDir    = FORWARD;//(uint8_t)bpBuffer[2];
 			tKinetis->rightPower = 100;//(uint8_t)bpBuffer[3];
 			tKinetis->rightDir	 = FORWARD;
-			tKinetis->CS 		 = 0x72//(uint8_t)bpBuffer[4];
+			tKinetis->CS 		 = 0x72;//(uint8_t)bpBuffer[4];
 
 			write(fdUart, tKinetis, 6);
 			/*bChecksum = bfnChecksum((void *)bpBuffer, 4);

@@ -310,8 +310,7 @@ static void *vfnClientThread(void* vpArgs)
 			}
 			else
 			{
-				tResponse->Potencia = 0;
-				tResponse->Angulo	= 0;
+				tResponse->status = 0;
 				tResponse->CS 		= 255;
 				printf("Error en el mensaje Checksum fail...\n\n");
 			}

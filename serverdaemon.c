@@ -76,7 +76,7 @@ int set_interface_attribs (int fd, int speed, int parity);
 void set_blocking (int fd, int should_block);
 static void  *vfnClientThread(void* vpArgs);
 uint8_t bfnChecksum(void *vpBlock, uint8_t bSize);
-uint8_t wfnMaps(uint8_t wX, uint8_t wInMin, uint8_t wInMax, uint8_t wOutMin, uint8_t wOutMax);
+uint8_t wfnMaps(uint16_t wX, uint16_t wInMin, uint16_t wInMax, uint16_t wOutMin, uint16_t wOutMax);
 
 int main(int argc, char *argv[])
 {
@@ -207,7 +207,7 @@ static void *vfnClientThread(void* vpArgs)
 			SRESPONSECOMMAND *tResponse = malloc(sizeof *tResponse);
 			SKINETISCOMMAND *tKinetis = malloc(sizeof *tKinetis);
 			uint8_t bChecksum;
-			
+
 			/*Response SOF
 				Udoo = 0xa
 				Cel  = 0x1
@@ -404,9 +404,9 @@ int set_interface_attribs (int fd, int speed, int parity)
 }
 
 
-uint8_t wfnMaps(uint8_t wX, uint8_t wInMin, uint8_t wInMax, uint8_t wOutMin, uint8_t wOutMax)
+uint8_t wfnMaps(uint16_t wX, uint16_t wInMin, uint16_t wInMax, uint16_t wOutMin, uint16_t wOutMax)
 {
-  return (wX - wInMin) * ((wOutMax - wOutMin) / (wInMax - wInMin)) + wOutMin;
+  return (uint8_t)((wX - wInMin) * ((wOutMax - wOutMin) / (wInMax - wInMin)) + wOutMin);
 }
  
 void set_blocking (int fd, int should_block)

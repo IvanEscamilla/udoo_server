@@ -219,8 +219,8 @@ static void *vfnClientThread(void* vpArgs)
 			
 			/*Imprime comando recivido del cliente*/
 			printf("SOF:   		\"%#2x\"\n",(uint8_t)bpBuffer[0]);
-			printf("Potencia:	\"%#2x\"\n",(uint8_t)bpBuffer[1]);
-			printf("Angulo:   	\"%#2x\"\n",(uint8_t)bpBuffer[2]);
+			printf("Potencia:	\"%i\"\n",(uint8_t)bpBuffer[1]);
+			printf("Angulo:   	\"%i\"\n",(uint8_t)bpBuffer[2]);
 			printf("CS:    		\"%#2x\"\n\n",(uint8_t)bpBuffer[3]);
 			
 			/*Almacenando valores recibidos por el celular*/

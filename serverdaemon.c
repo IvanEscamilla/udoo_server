@@ -241,12 +241,12 @@ static void *vfnClientThread(void* vpArgs)
 			/*Validando Checksum*/
 			if(bChecksum == tCommand->CS)
 			{
-				if(tCommand->Angulo >= 0 && tCommand <= 180)
+				if(tCommand->Angulo >= 0 && tCommand->Angulo <= 180)
 				{
 					/*Esta en el primer o segundo cuadrante*/
 					tKinetis->leftDir = FORWARD;
 					tKinetis->rightDir = FORWARD;					
-					if(tCommand->Angulo >= 0 && tCommand <= 90)
+					if(tCommand->Angulo >= 0 && tCommand->Angulo <= 90)
 					{
 						/*Primer Cuadrante*/
 						uint8_t atenuacion = wfnMaps(tCommand->Angulo,0,90,0,100);
@@ -264,7 +264,7 @@ static void *vfnClientThread(void* vpArgs)
 					/*Esta en el tercer o cuarto cuadrante*/
 					tKinetis->leftDir = BACKWARD;
 					tKinetis->rightDir = BACKWARD;
-					if(tCommand->Angulo >= 180 && tCommand <= 270)
+					if(tCommand->Angulo >= 180 && tCommand->Angulo <= 270)
 					{
 						/*Tercer Cuadrante*/
 						uint8_t atenuacion = wfnMaps(tCommand->Angulo,180,270,0,100);
@@ -289,22 +289,22 @@ static void *vfnClientThread(void* vpArgs)
 				}
 				else
 				{
-					usleep (15000);
-	                bytesReaded = read(fdUart,(void *)ansBuf,3);
-					bChecksum = bfnChecksum((void *)ansBuf, bytesReaded);
-					if(bChecksum == ansBuf[2])
-					{
-						printf("Data Received Kl25: %01x : %01x : %01x\n\n",(uint8_t)ansBuf[0], (uint8_t)ansBuf[1], (uint8_t)ansBuf[2]);
-						tResponse->status = (uint8_t)ansBuf[1];
-						tResponse->CS 	  = bfnChecksum((void *)tResponse, 3);
+					// usleep (15000);
+	    //             bytesReaded = read(fdUart,(void *)ansBuf,3);
+					// bChecksum = bfnChecksum((void *)ansBuf, bytesReaded);
+					// if(bChecksum == ansBuf[2])
+					// {
+					// 	printf("Data Received Kl25: %01x : %01x : %01x\n\n",(uint8_t)ansBuf[0], (uint8_t)ansBuf[1], (uint8_t)ansBuf[2]);
+					// 	tResponse->status = (uint8_t)ansBuf[1];
+					// 	tResponse->CS 	  = bfnChecksum((void *)tResponse, 3);
 
-					}
-					else
-					{
-						printf("Error al recibir mensaje de KL25\n");
-						tResponse->status = ERROR;
-						tResponse->CS 		= 255;
-					}
+					// }
+					// else
+					// {
+					// 	printf("Error al recibir mensaje de KL25\n");
+					// 	tResponse->status = ERROR;
+					// 	tResponse->CS 		= 255;
+					// }
 				}
 			}
 			else

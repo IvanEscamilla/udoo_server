@@ -250,13 +250,13 @@ static void *vfnClientThread(void* vpArgs)
 					if(tCommand->Angulo >= 0 && tCommand->Angulo <= 90)
 					{
 						/*Primer Cuadrante*/
-						uint8_t atenuacion = wfnMaps(tCommand->Angulo,0,90,0,100);
+						uint8_t atenuacion = wfnMaps(tCommand->Angulo,1,90,1,100);
 						tKinetis->leftPower = tCommand->Potencia - atenuacion;
 					}
 					else
 					{
 						/*Segundo Cuadrante*/
-						uint8_t atenuacion = wfnMaps(tCommand->Angulo,90,180,0,100);
+						uint8_t atenuacion = wfnMaps(tCommand->Angulo,90,180,1,100);
 						tKinetis->rightPower = tCommand->Potencia - atenuacion;
 					}
 				}
@@ -268,13 +268,13 @@ static void *vfnClientThread(void* vpArgs)
 					if(tCommand->Angulo >= 180 && tCommand->Angulo <= 270)
 					{
 						/*Tercer Cuadrante*/
-						uint8_t atenuacion = wfnMaps(tCommand->Angulo,180,270,0,100);
+						uint8_t atenuacion = wfnMaps(tCommand->Angulo,180,270,1,100);
 						tKinetis->leftPower = tCommand->Potencia - atenuacion;
 					}
 					else
 					{
 						/*Cuarto Cuadrante*/
-						uint8_t atenuacion = wfnMaps(tCommand->Angulo,270,360,0,100);
+						uint8_t atenuacion = wfnMaps(tCommand->Angulo,270,360,1,100);
 						tKinetis->rightPower = tCommand->Potencia - atenuacion;
 					}
 

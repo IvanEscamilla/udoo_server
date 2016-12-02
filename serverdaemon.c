@@ -226,8 +226,9 @@ static void *vfnClientThread(void* vpArgs)
 			/*Almacenando valores recibidos por el celular*/
 			tCommand->Potencia 	= (uint8_t)bpBuffer[1];
 			tCommand->Angulo 	= (uint8_t)bpBuffer[2];
-
-			bChecksum = bfnChecksum((void *)bpBuffer, 4);
+			tCommand->CS 		= (uint8_t)bpBuffer[3];
+			
+			bChecksum = bfnChecksum((void *)bpBuffer, 3);
 			printf("Checksum: %i\n",bChecksum);
 			printf("CS: %i\n\n", tCommand->CS);
 

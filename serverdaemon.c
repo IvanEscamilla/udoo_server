@@ -206,6 +206,7 @@ static void *vfnClientThread(void* vpArgs)
 			SCLIENTCOMMAND *tCommand = malloc(sizeof *tCommand); 
 			SRESPONSECOMMAND *tResponse = malloc(sizeof *tResponse);
 			SKINETISCOMMAND *tKinetis = malloc(sizeof *tKinetis);
+			uint8_t bChecksum;
 			
 			/*Response SOF
 				Udoo = 0xa

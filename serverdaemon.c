@@ -300,39 +300,40 @@ static void *vfnClientThread(void* vpArgs)
 						}
 
 					}
-
-					tKinetis->CS = bfnChecksum((void *)tKinetis, 5);
-					printf("leftPower:		\"%i\"\n",(uint8_t)tKinetis->leftPower);
-					printf("leftDir:		\"%i\"\n",(uint8_t)tKinetis->leftDir);
-					printf("rightPower:		\"%i\"\n",(uint8_t)tKinetis->rightPower);
-					printf("rightPower:		\"%i\"\n",(uint8_t)tKinetis->rightDir);
-
-					if(write(fdUart, tKinetis, 6) <= 0)
-					{
-						printf("Error al enviar mensaje a KL25\n");
-						tResponse->status = ERROR;
-						tResponse->CS 		= 255;
-					}
-					else
-					{
-						// usleep (15000);
-		    			// bytesReaded = read(fdUart,(void *)ansBuf,3);
-						// bChecksum = bfnChecksum((void *)ansBuf, bytesReaded);
-						// if(bChecksum == ansBuf[2])
-						// {
-						// 	printf("Data Received Kl25: %01x : %01x : %01x\n\n",(uint8_t)ansBuf[0], (uint8_t)ansBuf[1], (uint8_t)ansBuf[2]);
-						// 	tResponse->status = (uint8_t)ansBuf[1];
-						// 	tResponse->CS 	  = bfnChecksum((void *)tResponse, 3);
-
-						// }
-						// else
-						// {
-						// 	printf("Error al recibir mensaje de KL25\n");
-						// 	tResponse->status = ERROR;
-						// 	tResponse->CS 		= 255;
-						// }
-					}
 				}
+
+				tKinetis->CS = bfnChecksum((void *)tKinetis, 5);
+				printf("leftPower:		\"%i\"\n",(uint8_t)tKinetis->leftPower);
+				printf("leftDir:		\"%i\"\n",(uint8_t)tKinetis->leftDir);
+				printf("rightPower:		\"%i\"\n",(uint8_t)tKinetis->rightPower);
+				printf("rightPower:		\"%i\"\n",(uint8_t)tKinetis->rightDir);
+
+				if(write(fdUart, tKinetis, 6) <= 0)
+				{
+					printf("Error al enviar mensaje a KL25\n");
+					tResponse->status = ERROR;
+					tResponse->CS 		= 255;
+				}
+				else
+				{
+					// usleep (15000);
+	    			// bytesReaded = read(fdUart,(void *)ansBuf,3);
+					// bChecksum = bfnChecksum((void *)ansBuf, bytesReaded);
+					// if(bChecksum == ansBuf[2])
+					// {
+					// 	printf("Data Received Kl25: %01x : %01x : %01x\n\n",(uint8_t)ansBuf[0], (uint8_t)ansBuf[1], (uint8_t)ansBuf[2]);
+					// 	tResponse->status = (uint8_t)ansBuf[1];
+					// 	tResponse->CS 	  = bfnChecksum((void *)tResponse, 3);
+
+					// }
+					// else
+					// {
+					// 	printf("Error al recibir mensaje de KL25\n");
+					// 	tResponse->status = ERROR;
+					// 	tResponse->CS 		= 255;
+					// }
+				}
+				
 			}
 			else
 			{

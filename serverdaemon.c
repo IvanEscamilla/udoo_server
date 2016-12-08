@@ -252,7 +252,7 @@ static void *vfnClientThread(void* vpArgs)
 				}
 				else
 				{
-					int Angulo = wfnMaps(255,1,255,1,360);
+					int Angulo = wfnMaps(tCommand->Angulo,1,255,1,360);
 					printf("Angulo desmapeado:		%i\n\n", Angulo);
 
 					if(Angulo >= 0 && Angulo <= 180)

@@ -244,6 +244,7 @@ static void *vfnClientThread(void* vpArgs)
 			if(bChecksum == tCommand->CS)
 			{
 				uint16_t Angulo = wfnMaps(tCommand->Angulo,0,255,0,360);
+				printf("Angulo desmapeado:		%i\n\n",(uint16_t)Angulo);
 
 				if(Angulo >= 0 && Angulo <= 180)
 				{

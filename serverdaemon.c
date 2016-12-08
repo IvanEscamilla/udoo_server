@@ -76,7 +76,7 @@ int set_interface_attribs (int fd, int speed, int parity);
 void set_blocking (int fd, int should_block);
 static void  *vfnClientThread(void* vpArgs);
 uint8_t bfnChecksum(void *vpBlock, uint8_t bSize);
-int wfnMaps(int wX, int wInMin, int wInMax, int wOutMin, int wOutMax);
+int wfnMaps(double wX, double wInMin, double wInMax, double wOutMin, double wOutMax);
 
 int main(int argc, char *argv[])
 {
@@ -430,13 +430,13 @@ int set_interface_attribs (int fd, int speed, int parity)
 }
 
 
-int wfnMaps(int wX, int wInMin, int wInMax, int wOutMin, int wOutMax)
+int wfnMaps(double wX, double wInMin, double wInMax, double wOutMin, double wOutMax)
 {
-	int factor = (wOutMax - wOutMin) / (wInMax - wInMin) * 1000;
-	printf("%i\n", factor);
-	int res = (wX - wInMin) * factor; 
-	printf("%i\n", res);
-  return  (int)(res/1000) + wOutMin;
+	double  factor = (wOutMax - wOutMin) / (wInMax - wInMin);
+	printf("%f\n", factor);
+	double  res = (wX - wInMin) * factor; 
+	printf("%f\n", res);
+  return  (int)(res + wOutMin);
 }
  
 void set_blocking (int fd, int should_block)

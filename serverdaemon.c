@@ -434,6 +434,7 @@ int wfnMaps(int wX, int wInMin, int wInMax, int wOutMin, int wOutMax)
 {
 	float factor = (wOutMax - wOutMin) / (wInMax - wInMin);
 	float res = (wX - wInMin) * factor; 
+	printf("%f\n", res);
   return  (int)(res) + wOutMin;
 }
  

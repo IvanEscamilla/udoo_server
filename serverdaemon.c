@@ -76,7 +76,7 @@ int set_interface_attribs (int fd, int speed, int parity);
 void set_blocking (int fd, int should_block);
 static void  *vfnClientThread(void* vpArgs);
 uint8_t bfnChecksum(void *vpBlock, uint8_t bSize);
-uint16_t wfnMaps(uint16_t wX, uint16_t wInMin, uint16_t wInMax, uint16_t wOutMin, uint16_t wOutMax);
+int wfnMaps(int wX, int wInMin, int wInMax, int wOutMin, int wOutMax);
 
 int main(int argc, char *argv[])
 {
@@ -252,8 +252,8 @@ static void *vfnClientThread(void* vpArgs)
 				}
 				else
 				{
-					uint16_t Angulo = wfnMaps(tCommand->Angulo,1,255,1,360);
-					printf("Angulo desmapeado:		%i\n\n",(uint16_t)Angulo);
+					int Angulo = wfnMaps(tCommand->Angulo,1,255,1,360);
+					printf("Angulo desmapeado:		%i\n\n", Angulo);
 
 					if(Angulo >= 0 && Angulo <= 180)
 					{
@@ -333,7 +333,7 @@ static void *vfnClientThread(void* vpArgs)
 					// 	tResponse->CS 		= 255;
 					// }
 				}
-				
+
 			}
 			else
 			{
@@ -430,9 +430,9 @@ int set_interface_attribs (int fd, int speed, int parity)
 }
 
 
-uint16_t wfnMaps(uint16_t wX, uint16_t wInMin, uint16_t wInMax, uint16_t wOutMin, uint16_t wOutMax)
+int wfnMaps(int wX, int wInMin, int wInMax, int wOutMin, int wOutMax)
 {
-  return (uint16_t)((wX - wInMin) * ((wOutMax - wOutMin) / (wInMax - wInMin)) + wOutMin);
+  return (wX - wInMin) * ((wOutMax - wOutMin) / (wInMax - wInMin)) + wOutMin;
 }
  
 void set_blocking (int fd, int should_block)

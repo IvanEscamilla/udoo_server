@@ -243,25 +243,27 @@ static void *vfnClientThread(void* vpArgs)
 			/*Validando Checksum*/
 			if(bChecksum == tCommand->CS)
 			{
-				if(tCommand->Angulo >= 0 && tCommand->Angulo <= 180)
+				uint16_t Angulo = wfnMaps(tCommand->Angulo,0,255,0,360);
+
+				if(Angulo >= 0 && Angulo <= 180)
 				{
 					/*Esta en el primer o segundo cuadrante*/
 					tKinetis->leftDir = FORWARD;
 					tKinetis->rightDir = FORWARD;					
-					if(tCommand->Angulo >= 0 && tCommand->Angulo <= 90)
+					if(Angulo >= 0 && Angulo <= 90)
 					{
 						/*Primer Cuadrante*/
-						uint8_t atenuacion = wfnMaps(tCommand->Angulo,1,90,1,100);
-						tKinetis->leftPower = tCommand->Potencia - atenuacion;
-						tKinetis->rightPower = tCommand->Potencia;
+						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,1,90,1,100);
+						tKinetis->leftPower = tCommand->Potencia;
+						tKinetis->rightPower = tCommand->Potencia - atenuacion;
 
 					}
 					else
 					{
 						/*Segundo Cuadrante*/
-						uint8_t atenuacion = wfnMaps(tCommand->Angulo,90,180,1,100);
-						tKinetis->rightPower = tCommand->Potencia - atenuacion;
-						tKinetis->leftPower = tCommand->Potencia;
+						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,90,180,1,100);
+						tKinetis->rightPower = tCommand->Potencia;
+						tKinetis->leftPower = tCommand->Potencia - atenuacion;
 
 					}
 				}
@@ -270,10 +272,10 @@ static void *vfnClientThread(void* vpArgs)
 					/*Esta en el tercer o cuarto cuadrante*/
 					tKinetis->leftDir = BACKWARD;
 					tKinetis->rightDir = BACKWARD;
-					if(tCommand->Angulo >= 180 && tCommand->Angulo <= 270)
+					if(Angulo >= 180 && Angulo <= 270)
 					{
 						/*Tercer Cuadrante*/
-						uint8_t atenuacion = wfnMaps(tCommand->Angulo,180,270,1,100);
+						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,180,270,1,100);
 						tKinetis->leftPower = tCommand->Potencia - atenuacion;
 						tKinetis->rightPower = tCommand->Potencia;
 
@@ -281,7 +283,7 @@ static void *vfnClientThread(void* vpArgs)
 					else
 					{
 						/*Cuarto Cuadrante*/
-						uint8_t atenuacion = wfnMaps(tCommand->Angulo,270,360,1,100);
+						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,270,360,1,100);
 						tKinetis->rightPower = tCommand->Potencia - atenuacion;
 						tKinetis->leftPower = tCommand->Potencia;
 
@@ -412,9 +414,9 @@ int set_interface_attribs (int fd, int speed, int parity)
 }
 
 
-uint8_t wfnMaps(uint16_t wX, uint16_t wInMin, uint16_t wInMax, uint16_t wOutMin, uint16_t wOutMax)
+uint16_t wfnMaps(uint16_t wX, uint16_t wInMin, uint16_t wInMax, uint16_t wOutMin, uint16_t wOutMax)
 {
-  return (uint8_t)((wX - wInMin) * ((wOutMax - wOutMin) / (wInMax - wInMin)) + wOutMin);
+  return (uint16_t)((wX - wInMin) * ((wOutMax - wOutMin) / (wInMax - wInMin)) + wOutMin);
 }
  
 void set_blocking (int fd, int should_block)

@@ -243,85 +243,95 @@ static void *vfnClientThread(void* vpArgs)
 			/*Validando Checksum*/
 			if(bChecksum == tCommand->CS)
 			{
-				uint16_t Angulo = wfnMaps(tCommand->Angulo,1,255,1,360);
-				printf("Angulo desmapeado:		%i\n\n",(uint16_t)Angulo);
-
-				if(Angulo >= 0 && Angulo <= 180)
+				if(tCommand->Angulo == 0 && tCommand->Potencia == 0)
 				{
-					/*Esta en el primer o segundo cuadrante*/
-					tKinetis->leftDir = FORWARD;
-					tKinetis->rightDir = FORWARD;					
-					if(Angulo >= 0 && Angulo <= 90)
-					{
-						/*Primer Cuadrante*/
-						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,1,90,100,1);
-						tKinetis->leftPower = tCommand->Potencia;
-						tKinetis->rightPower = tCommand->Potencia - atenuacion;
-
-					}
-					else
-					{
-						/*Segundo Cuadrante*/
-						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,90,180,1,100);
-						tKinetis->rightPower = tCommand->Potencia;
-						tKinetis->leftPower = tCommand->Potencia - atenuacion;
-
-					}
+					tKinetis->leftPower 	= 0;
+					tKinetis->leftDir 		= 0;
+					tKinetis->rightPower 	= 0;
+					tKinetis->rightDir 		= 0;
 				}
 				else
 				{
-					/*Esta en el tercer o cuarto cuadrante*/
-					tKinetis->leftDir = BACKWARD;
-					tKinetis->rightDir = BACKWARD;
-					if(Angulo >= 180 && Angulo <= 270)
-					{
-						/*Tercer Cuadrante*/
-						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,180,270,100,1);
-						tKinetis->leftPower = tCommand->Potencia - atenuacion;
-						tKinetis->rightPower = tCommand->Potencia;
+					uint16_t Angulo = wfnMaps(tCommand->Angulo,1,255,1,360);
+					printf("Angulo desmapeado:		%i\n\n",(uint16_t)Angulo);
 
+					if(Angulo >= 0 && Angulo <= 180)
+					{
+						/*Esta en el primer o segundo cuadrante*/
+						tKinetis->leftDir = FORWARD;
+						tKinetis->rightDir = FORWARD;					
+						if(Angulo >= 0 && Angulo <= 90)
+						{
+							/*Primer Cuadrante*/
+							uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,1,90,100,1);
+							tKinetis->leftPower = tCommand->Potencia;
+							tKinetis->rightPower = tCommand->Potencia - atenuacion;
+
+						}
+						else
+						{
+							/*Segundo Cuadrante*/
+							uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,90,180,1,100);
+							tKinetis->rightPower = tCommand->Potencia;
+							tKinetis->leftPower = tCommand->Potencia - atenuacion;
+
+						}
 					}
 					else
 					{
-						/*Cuarto Cuadrante*/
-						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,270,360,1,100);
-						tKinetis->rightPower = tCommand->Potencia - atenuacion;
-						tKinetis->leftPower = tCommand->Potencia;
+						/*Esta en el tercer o cuarto cuadrante*/
+						tKinetis->leftDir = BACKWARD;
+						tKinetis->rightDir = BACKWARD;
+						if(Angulo >= 180 && Angulo <= 270)
+						{
+							/*Tercer Cuadrante*/
+							uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,180,270,100,1);
+							tKinetis->leftPower = tCommand->Potencia - atenuacion;
+							tKinetis->rightPower = tCommand->Potencia;
+
+						}
+						else
+						{
+							/*Cuarto Cuadrante*/
+							uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,270,360,1,100);
+							tKinetis->rightPower = tCommand->Potencia - atenuacion;
+							tKinetis->leftPower = tCommand->Potencia;
+
+						}
 
 					}
 
-				}
+					tKinetis->CS = bfnChecksum((void *)tKinetis, 5);
+					printf("leftPower:		\"%i\"\n",(uint8_t)tKinetis->leftPower);
+					printf("leftDir:		\"%i\"\n",(uint8_t)tKinetis->leftDir);
+					printf("rightPower:		\"%i\"\n",(uint8_t)tKinetis->rightPower);
+					printf("rightPower:		\"%i\"\n",(uint8_t)tKinetis->rightDir);
 
-				tKinetis->CS = bfnChecksum((void *)tKinetis, 5);
-				printf("leftPower:		\"%i\"\n",(uint8_t)tKinetis->leftPower);
-				printf("leftDir:		\"%i\"\n",(uint8_t)tKinetis->leftDir);
-				printf("rightPower:		\"%i\"\n",(uint8_t)tKinetis->rightPower);
-				printf("rightPower:		\"%i\"\n",(uint8_t)tKinetis->rightDir);
+					if(write(fdUart, tKinetis, 6) <= 0)
+					{
+						printf("Error al enviar mensaje a KL25\n");
+						tResponse->status = ERROR;
+						tResponse->CS 		= 255;
+					}
+					else
+					{
+						// usleep (15000);
+		    			// bytesReaded = read(fdUart,(void *)ansBuf,3);
+						// bChecksum = bfnChecksum((void *)ansBuf, bytesReaded);
+						// if(bChecksum == ansBuf[2])
+						// {
+						// 	printf("Data Received Kl25: %01x : %01x : %01x\n\n",(uint8_t)ansBuf[0], (uint8_t)ansBuf[1], (uint8_t)ansBuf[2]);
+						// 	tResponse->status = (uint8_t)ansBuf[1];
+						// 	tResponse->CS 	  = bfnChecksum((void *)tResponse, 3);
 
-				if(write(fdUart, tKinetis, 6) <= 0)
-				{
-					printf("Error al enviar mensaje a KL25\n");
-					tResponse->status = ERROR;
-					tResponse->CS 		= 255;
-				}
-				else
-				{
-					// usleep (15000);
-	    //             bytesReaded = read(fdUart,(void *)ansBuf,3);
-					// bChecksum = bfnChecksum((void *)ansBuf, bytesReaded);
-					// if(bChecksum == ansBuf[2])
-					// {
-					// 	printf("Data Received Kl25: %01x : %01x : %01x\n\n",(uint8_t)ansBuf[0], (uint8_t)ansBuf[1], (uint8_t)ansBuf[2]);
-					// 	tResponse->status = (uint8_t)ansBuf[1];
-					// 	tResponse->CS 	  = bfnChecksum((void *)tResponse, 3);
-
-					// }
-					// else
-					// {
-					// 	printf("Error al recibir mensaje de KL25\n");
-					// 	tResponse->status = ERROR;
-					// 	tResponse->CS 		= 255;
-					// }
+						// }
+						// else
+						// {
+						// 	printf("Error al recibir mensaje de KL25\n");
+						// 	tResponse->status = ERROR;
+						// 	tResponse->CS 		= 255;
+						// }
+					}
 				}
 			}
 			else

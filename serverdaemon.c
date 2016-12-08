@@ -432,11 +432,11 @@ int set_interface_attribs (int fd, int speed, int parity)
 
 int wfnMaps(int wX, int wInMin, int wInMax, int wOutMin, int wOutMax)
 {
-	double factor = (wOutMax - wOutMin) / (wInMax - wInMin);
-	printf("%lf\n", factor);
-	double res = (wX - wInMin) * factor; 
-	printf("%lf\n", res);
-  return  (int)(res) + wOutMin;
+	int factor = (wOutMax - wOutMin) / (wInMax - wInMin) * 1000;
+	printf("%i\n", factor);
+	int res = (wX - wInMin) * factor; 
+	printf("%i\n", res);
+  return  (int)(res/1000) + wOutMin;
 }
  
 void set_blocking (int fd, int should_block)

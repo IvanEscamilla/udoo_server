@@ -293,6 +293,10 @@ static void *vfnClientThread(void* vpArgs)
 				}
 
 				tKinetis->CS = bfnChecksum((void *)tKinetis, 5);
+				printf("leftPower:	\"%i\"\n",(uint8_t)tKinetis->leftPower);
+				printf("leftDir:   	\"%i\"\n",(uint8_t)tKinetis->leftDir);
+				printf("rightPower: \"%i\"\n\n",(uint8_t)tKinetis->rightPower);
+				printf("rightPower: \"%i\"\n\n",(uint8_t)tKinetis->rightDir);
 
 				if(write(fdUart, tKinetis, 6) <= 0)
 				{

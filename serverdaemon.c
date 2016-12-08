@@ -76,7 +76,7 @@ int set_interface_attribs (int fd, int speed, int parity);
 void set_blocking (int fd, int should_block);
 static void  *vfnClientThread(void* vpArgs);
 uint8_t bfnChecksum(void *vpBlock, uint8_t bSize);
-uint8_t wfnMaps(uint16_t wX, uint16_t wInMin, uint16_t wInMax, uint16_t wOutMin, uint16_t wOutMax);
+uint16_t wfnMaps(uint16_t wX, uint16_t wInMin, uint16_t wInMax, uint16_t wOutMin, uint16_t wOutMax);
 
 int main(int argc, char *argv[])
 {

@@ -243,7 +243,7 @@ static void *vfnClientThread(void* vpArgs)
 			/*Validando Checksum*/
 			if(bChecksum == tCommand->CS)
 			{
-				uint16_t Angulo = wfnMaps(tCommand->Angulo,0,255,0,360);
+				uint16_t Angulo = wfnMaps(tCommand->Angulo,1,255,1,360);
 				printf("Angulo desmapeado:		%i\n\n",(uint16_t)Angulo);
 
 				if(Angulo >= 0 && Angulo <= 180)
@@ -254,7 +254,7 @@ static void *vfnClientThread(void* vpArgs)
 					if(Angulo >= 0 && Angulo <= 90)
 					{
 						/*Primer Cuadrante*/
-						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,1,90,1,100);
+						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,1,90,100,1);
 						tKinetis->leftPower = tCommand->Potencia;
 						tKinetis->rightPower = tCommand->Potencia - atenuacion;
 
@@ -276,7 +276,7 @@ static void *vfnClientThread(void* vpArgs)
 					if(Angulo >= 180 && Angulo <= 270)
 					{
 						/*Tercer Cuadrante*/
-						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,180,270,1,100);
+						uint8_t atenuacion = (uint8_t)wfnMaps(Angulo,180,270,100,1);
 						tKinetis->leftPower = tCommand->Potencia - atenuacion;
 						tKinetis->rightPower = tCommand->Potencia;
 

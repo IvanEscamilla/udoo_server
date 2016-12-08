@@ -432,7 +432,9 @@ int set_interface_attribs (int fd, int speed, int parity)
 
 int wfnMaps(int wX, int wInMin, int wInMax, int wOutMin, int wOutMax)
 {
-  return (wX - wInMin) * ((wOutMax - wOutMin) / (wInMax - wInMin)) + wOutMin;
+	float factor = (wOutMax - wOutMin) / (wInMax - wInMin);
+	float res = (wX - wInMin) * factor; 
+  return  (int)(res) + wOutMin;
 }
  
 void set_blocking (int fd, int should_block)

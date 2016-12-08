@@ -432,10 +432,10 @@ int set_interface_attribs (int fd, int speed, int parity)
 
 int wfnMaps(int wX, int wInMin, int wInMax, int wOutMin, int wOutMax)
 {
-	float factor = (wOutMax - wOutMin) / (wInMax - wInMin);
-	printf("%f\n", factor);
-	float res = (wX - wInMin) * factor; 
-	printf("%f\n", res);
+	double factor = (wOutMax - wOutMin) / (wInMax - wInMin);
+	printf("%d\n", factor);
+	double res = (wX - wInMin) * factor; 
+	printf("%d\n", res);
   return  (int)(res) + wOutMin;
 }
  

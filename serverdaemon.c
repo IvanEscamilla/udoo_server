@@ -35,17 +35,16 @@ typedef int8_t bool;
 
 typedef struct tClient {
    uint8_t  SOF;
-   uint8_t  Sensor;
-   uint8_t  Eje;
+   uint8_t	dir;
+   uint8_t  Comando;
+   uint8_t  dato;
    uint8_t  CS;
 } SCLIENTCOMMAND;
 
 typedef struct tResponse {
    uint8_t  SOF;
-   uint8_t  Sensor;
-   uint8_t  dataLength;
+   uint8_t  status;
    uint8_t  CS;
-   int16_t data[9];
 } SRESPONSECOMMAND;
 
 #define WAIST 		0
@@ -60,9 +59,9 @@ typedef struct tResponse {
 
 typedef struct tKinetis {
    uint8_t  SOF;
-   uint8_t  Servo;
+   uint8_t  servo;
    uint8_t  dir;
-   uint8_t  Angle;
+   uint8_t  angle;
    uint8_t  CS;
 } SKINETISCOMMAND;
 
@@ -216,30 +215,27 @@ static void *vfnClientThread(void* vpArgs)
 			pthread_mutex_lock(&gpLock);
 			
 			uint8_t bChecksum;
-			//SCLIENTCOMMAND tCommand;
-			//SRESPONSECOMMAND tResponse = {0, 0, 0, 0, {0,0,0,0,0,0,0,0,0}};
+
 			SCLIENTCOMMAND *tCommand = malloc(sizeof *tCommand); 
 			SRESPONSECOMMAND *tResponse = malloc(sizeof *tResponse);
 			SKINETISCOMMAND *tKinetis = malloc(sizeof *tKinetis);
-			//SRAWDATA tAccRawData;
-			//SRAWDATA tMagRawData;
-			//SGYRORAWDATA tGyroRawData;
 
 			/*Response SOF*/
 			tResponse->SOF = 0xaa;
-			
+			tKinetis->SOF = 0xa2;
+
 			/*Imprime comando recivido del cliente*/
 			printf("SOF:   		\"%#2x\"\n",(uint8_t)bpBuffer[0]);
-			printf("Servo:		\"%#2x\"\n",(uint8_t)bpBuffer[1]);
-			printf("Angulo:   	\"%#2x\"\n",(uint8_t)bpBuffer[2]);
-			printf("direccion:  \"%#2x\"\n",(uint8_t)bpBuffer[3]);
+			printf("Dir:		\"%#2x\"\n",(uint8_t)bpBuffer[1]);
+			printf("Comando:   	\"%#2x\"\n",(uint8_t)bpBuffer[2]);
+			printf("Dato:  		\"%#2x\"\n",(uint8_t)bpBuffer[3]);
 			printf("CS:    		\"%#2x\"\n\n",(uint8_t)bpBuffer[4]);
 			
 			/*Almacenando valores*/
 			tKinetis->SOF = (uint8_t)bpBuffer[0];
-			tKinetis->Servo = (uint8_t)bpBuffer[1];
-			tKinetis->dir = (uint8_t)bpBuffer[2];
-			tKinetis->Angle = (uint8_t)bpBuffer[3];
+			tKinetis->dir = (uint8_t)bpBuffer[1];
+			tKinetis->servo = (uint8_t)bpBuffer[2];
+			tKinetis->angle = (uint8_t)bpBuffer[3];
 			tKinetis->CS = (uint8_t)bpBuffer[4];
 
 			bChecksum = bfnChecksum((void *)bpBuffer, 4);
@@ -252,24 +248,21 @@ static void *vfnClientThread(void* vpArgs)
 				if(write(fdUart, tKinetis, 5) <= 0)
 				{
 					printf("Error al enviar mensaje\n");
-					tResponse->Sensor = ERROR;
-					tResponse->dataLength = 0;
+					tResponse->status = ERROR;
 					tResponse->CS 		= 255;
 					printf("Error en el mensaje Checksum fail...\n\n");
 				}
 				else
 				{
-					tResponse->Sensor = ERROR;
-					tResponse->dataLength = 0;
-					tResponse->CS 		= 255;
+					tResponse->status 	= 1;
+					tResponse->CS 		= bfnChecksum((void *)tResponse, 2);
 					printf("Error en el mensaje Checksum fail...\n\n");
 				}
 
 			}
 			else
 			{
-				tResponse->Sensor = ERROR;
-				tResponse->dataLength = 0;
+				tResponse->status = ERROR;
 				tResponse->CS 		= 255;
 				printf("Error en el mensaje Checksum fail...\n\n");
 			}
